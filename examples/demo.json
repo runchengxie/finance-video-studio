@@ -1,0 +1,5 @@
+{
+ "title":"虚构公司的三点观察", "fictional":true,"fps":30,"frames":900,"unit":"USD million","chart":"bar",
+ "data":[{"label":"Year 1","value":12.25},{"label":"Year 2","value":15.5},{"label":"Year 3","value":18.75}],
+ "captions":[{"start":0,"end":300,"text":"一、收入增长，例子中的规模逐年扩大"},{"start":300,"end":600,"text":"二、增长不等于利润，还需观察成本"},{"start":600,"end":900,"text":"三、数据完全虚构，不构成投资建议"}]
+}
