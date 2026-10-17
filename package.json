@@ -8,7 +8,10 @@
   },
   "scripts": {
     "check": "tsc --noEmit && eslint src test",
-    "test": "tsx --test test/core.test.ts",
+    "test": "tsx --test test/*.test.ts",
+    "review": "tsx src/review-cli.ts",
+    "review:example": "tsx test/review-example.ts",
+    "demo": "tsx src/demo-cli.ts",
     "render": "tsx src/cli.ts",
     "smoke": "tsx test/smoke.ts"
   },
