@@ -21,4 +21,4 @@ jobs:
           sudo apt-get install -y ffmpeg
       - name: Offline checks and actual video decode
         run: |
-          sudo unshare --net --map-root-user bash -c 'export HOME="$1"; export PATH="$2"; npm run check && npm test && npm run smoke -- "$3"' bash "$HOME" "$PATH" "$RUNNER_TEMP/finance-smoke"
+          sudo unshare --net -- runuser -u "$(id -un)" -- env HOME="$HOME" PATH="$PATH" bash -c 'test -z "$(ip route)" && npm run check && npm test && npm run smoke -- "$1"' bash "$RUNNER_TEMP/finance-smoke"
