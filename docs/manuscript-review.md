@@ -86,7 +86,7 @@ npm run review -- init /absolute/draft.json /absolute/01-pending.json /absolute/
 npm run review -- run /absolute/01-pending.json /absolute/local-config.json /absolute/02-imported.json --execute-local
 ```
 
-Both explicit configuration and `--execute-local` are required. A manual-mode run remains pending. A missing executable/skill file, changed policy, timeout, invalid response or mismatched hash fails without replacing the original pending record or inventing approval.
+Both explicit configuration and `--execute-local` are required. A manual-mode run creates a fresh pending review revision, even if its input was previously approved; it cannot carry forward approval as evidence of a new polish execution. The original revision is preserved. A missing executable/skill file, changed policy, timeout, invalid response or mismatched hash fails without replacing the original pending record or inventing approval.
 
 The executable receives one JSON object on stdin: `protocolVersion: 1`, `inputHash`, `draft`, `skillPath` and a short original task brief. It must return exactly the result-object shape described above on stdout; diagnostics belong on stderr. The installed skill path is verified locally, but skill content is not bundled or transmitted by this application. `adapter_reported` means the executable reported using the skill; it is not independent proof that an AI followed it. Adapter acceptance still requires separate human approval.
 

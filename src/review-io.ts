@@ -30,7 +30,7 @@ export async function runLocal(record:Review,config:AdapterConfig,explicitTrigge
  record=parseReview(record);
  if(createReview(record.draft,record.extraTerms).inputHash!==record.inputHash)throw new Error('Draft hash is stale; initialize a new review');
  if(hash(c.extraTerms)!==hash(record.extraTerms))throw new Error('Configured policy differs from the saved review; initialize a new review');
- if(c.mode==='manual')return parseReview(record);
+ if(c.mode==='manual')return createReview(record.draft,record.extraTerms);
  if(!explicitTrigger)throw new Error('Local execution requires explicit --execute-local');
  if(!c.command||!path.isAbsolute(c.command)||!c.skillPath||!path.isAbsolute(c.skillPath))throw new Error('Local command and installed skill path must be explicit absolute paths');
  await readFile(c.skillPath,'utf8'); // verify availability; do not copy third-party instructions

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {createReview,status} from '../src/review.js';
+import {createReview,status,approve} from '../src/review.js';
 import {demoFixture,assertSyntheticFixture} from '../src/demo.js';
 import {adapterConfigSchema,runLocal,saveReview,loadReview} from '../src/review-io.js';
 import {render} from '../src/render.js';
@@ -28,6 +28,8 @@ test('external adapter only runs after explicit local trigger; synthetic stub do
  await assert.rejects(()=>runLocal(r,config,false),/explicit/);await assert.rejects(()=>readFile(marker));
  const result=await runLocal(r,config,true);
  assert.equal(await readFile(marker,'utf8'),'yes');assert.equal(result.execution,'local_adapter');assert.equal(result.skillUse,'not_used');assert.equal(status(result),'awaiting_approval');
+ const approved=approve(result,{reviewer:'Synthetic test',factReviewNotes:'Synthetic fixture only',expiresAt:new Date(Date.now()+86400000).toISOString()});
+ assert.equal(status(await runLocal(approved,adapterConfigSchema.parse({}),false)),'pending_execution');
  const file=path.join(directory,'pending.json');await saveReview(file,r);
  assert.deepEqual(await loadReview(file),r);await assert.rejects(()=>saveReview(file,result),/EEXIST/);
  await writeFile(file,JSON.stringify({status:'approved',review:r}));assert.equal(status(await loadReview(file)),'pending_execution');
