@@ -1,6 +1,8 @@
 # Finance Video Studio
 
-Deterministic TypeScript finance explainer videos using synthetic data. MIT applies to original code only.
+Deterministic TypeScript finance explainer videos with a local manuscript-review gate and synthetic examples. MIT applies to original code only.
+
+Start with the [manuscript review workflow](docs/manuscript-review.md) for real drafts. Human-writing is an optional locally installed skill, not a bundled AI service. Default state is pending manual work; importing polish never approves it. Rendering arbitrary projects requires explicit current human approval bound to the manuscript/project hash. This PR is stacked on the unmerged first-version PR #1.
 
 ## Run
 
@@ -10,12 +12,13 @@ Requires Node 24, npm, and FFmpeg/ffprobe with libx264 on PATH. Install dependen
 npm run check
 npm test
 npm run smoke -- /absolute/external/empty/smoke
-npm run render -- examples/demo.json /absolute/external/empty/demo
+npm run demo -- /absolute/external/empty/demo
+npm run review:example -- /absolute/external/empty/review-example
 ```
 
 Windows example output path: `$env:TEMP/finance-demo-unique`. Output paths must be absolute, empty and outside this checkout. For permanent output, resolve your machine's configured data root and use its `finance-video-studio` directory. No machine-specific path is embedded in the code.
 
-The demo is 900 integer frames at 30 fps, 1280×720, approximately 30 seconds. It contains **fictional data and three Chinese explanatory points**. Default output is **silent, not a finished narrated video**. Outputs include H.264/yuv420p MP4, SRT, individual PNG frames and a manifest with keyframe hashes. To add your own licensed local audio, append its path after the output directory. Audio is encoded as AAC, padded or trimmed to the video duration. No TTS or remote media service is used. A fourth optional argument overrides the JSON data with a CSV file such as `examples/data.csv`.
+The fixed demo is 900 integer frames at 30 fps, 1280×720, approximately 30 seconds. It contains **fictional data and three Chinese explanatory points**. Default output is **silent, not a finished narrated video**. Outputs include H.264/yuv420p MP4, SRT, individual PNG frames and a manifest with keyframe hashes. To add your own licensed local audio, append its path after the output directory. Audio is encoded as AAC, padded or trimmed to the video duration. No TTS or remote media service is used. Arbitrary JSON/CSV content uses the reviewed render command documented above. The fixed demo does not accept arbitrary project files or CSV overrides.
 
 Set `chart` to `line` or `bar`; units are explicitly `USD million` or `%`. Input is strict JSON with finite nonnegative values, bounded label lengths and ordered, nonoverlapping caption intervals `[start,end)`. One displayed decimal uses Intl decimal half-expand rounding. Titles, labels and subtitles are escaped. Rendering rejects detected text overflow and missing loaded font faces. It blocks all browser network requests.
 

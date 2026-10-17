@@ -1,0 +1,27 @@
+// Fixed synthetic workflow simulation only; never accepts a real manuscript input.
+import {mkdir,writeFile,readdir} from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {demoFixture} from '../src/demo.js';
+import {createReview,importPolish,approve,status,assertApproved} from '../src/review.js';
+import {saveReview} from '../src/review-io.js';
+import {render,ffmpeg} from '../src/render.js';
+const out=process.argv[2];if(!out||!path.isAbsolute(out))throw new Error('Supply an empty absolute external output directory');
+await mkdir(out,{recursive:true});if((await readdir(out)).length)throw new Error('Example output must be empty');
+const draft=await demoFixture('bar-smoke');
+draft.captions[0]!.text='一、虚构收入约12亿美元 [S1]';
+const pending=createReview(draft);await saveReview(path.join(out,'01-pending.json'),pending);
+assert.throws(()=>assertApproved(draft,pending));
+const polished=structuredClone(draft);polished.captions[0]!.text='一、虚构收入约13亿美元 [S1]';
+const imported=importPolish(pending,{inputHash:pending.inputHash,decision:'accepted',polished,changeNotes:'Synthetic fixture deliberately changes a number to exercise the review gate',skillUse:'not_used'},'manual');
+assert.equal(status(imported),'facts_changed');await saveReview(path.join(out,'02-facts-changed.json'),imported);
+const approved=approve(imported,{reviewer:'SYNTHETIC TEST SIMULATION ONLY',factReviewNotes:'All inputs are invented deterministic fixtures; no real-world claim verified',differenceReviewNotes:'Deliberate 12-to-13 token change reviewed for this test simulation only',expiresAt:new Date(Date.now()+86400000).toISOString()});
+await saveReview(path.join(out,'03-approved-simulation.json'),approved);
+await writeFile(path.join(out,'polished-project.json'),JSON.stringify(polished,null,2),{flag:'wx'});
+await render(polished,path.join(out,'render'),undefined,approved);
+const video=path.join(out,'render','video.mp4');
+const probe=JSON.parse(execFileSync(process.env.FFPROBE_PATH??'ffprobe',['-v','error','-count_frames','-show_streams','-show_format','-of','json',video],{encoding:'utf8'}));
+assert.equal(Number(probe.streams[0].nb_read_frames),90);assert.equal(Number(probe.format.duration),3);
+ffmpeg(['-v','error','-xerror','-i',video,'-f','null','-']);
+console.log('Fixed synthetic review simulation: pending -> facts_changed -> explicit simulated approval -> 90 rendered/probed/decoded frames. No AI or actual human-writing invocation.');

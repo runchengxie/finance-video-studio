@@ -5,7 +5,7 @@ import {schema,csvData,format,srt,html} from '../src/core.js';
 const p=schema.parse(JSON.parse(readFileSync('examples/demo.json','utf8')));
 test('schema positive and negative fixtures',()=>{
  assert.equal(p.frames,900);
- for(const patch of [{fictional:false},{fps:29.97},{frames:90.1},{title:'x'.repeat(29)},{data:[{label:'A',value:NaN}]},{extra:true}]) assert.equal(schema.safeParse({...p,...patch}).success,false);
+ for(const patch of [{fictional:'true'},{fps:29.97},{frames:90.1},{title:'x'.repeat(29)},{data:[{label:'A',value:NaN}]},{extra:true}]) assert.equal(schema.safeParse({...p,...patch}).success,false);
 });
 test('CSV strict numeric parsing and JSON parity',()=>{
  assert.deepEqual(csvData(readFileSync('examples/data.csv','utf8')),p.data);

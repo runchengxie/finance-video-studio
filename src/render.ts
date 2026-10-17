@@ -6,6 +6,8 @@ import {execFileSync} from 'node:child_process';
 import {chromium} from 'playwright';
 import {html,schema,srt,type Project} from './core.js';
 import {writeFile} from 'node:fs/promises';
+import {assertApproved,type Review} from './review.js';
+import {demoFixture,type DemoFixture} from './demo.js';
 
 export async function fontCss():Promise<string>{
   const root=fileURLToPath(new URL('../node_modules/@fontsource/noto-sans-sc/',import.meta.url));
@@ -21,7 +23,14 @@ export async function fontCss():Promise<string>{
 export function ffmpeg(args:string[]):string{
   return execFileSync(process.env.FFMPEG_PATH??'ffmpeg',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']});
 }
-export async function render(input:Project,out:string,audio?:string):Promise<void>{
+export async function render(input:Project,out:string,audio:string|undefined,review:Review):Promise<void>{
+  assertApproved(input,review);
+  await renderFrames(input,out,audio);
+}
+export async function renderDemo(out:string,audio?:string,fixture:DemoFixture='demo'):Promise<void>{
+  await renderFrames(await demoFixture(fixture),out,audio);
+}
+async function renderFrames(input:Project,out:string,audio?:string):Promise<void>{
   const p=schema.parse(input);
   if(!path.isAbsolute(out)) throw new Error('Output directory must be absolute and outside repository');
   const repo=fileURLToPath(new URL('../',import.meta.url));
