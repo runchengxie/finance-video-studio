@@ -2,7 +2,7 @@
 
 Deterministic TypeScript finance explainer videos with a local manuscript-review gate and synthetic examples. MIT applies to original code only.
 
-Start with the [manuscript review workflow](docs/manuscript-review.md) for real drafts. Human-writing is an optional locally installed skill, not a bundled AI service. Default state is pending manual work; importing polish never approves it. Rendering arbitrary projects requires explicit current human approval bound to the manuscript/project hash. This PR is stacked on the unmerged first-version PR #1.
+Start with the [manuscript review workflow](docs/manuscript-review.md) for real drafts. Human-writing is an optional locally installed skill, not a bundled AI service. Default state is pending manual work; importing polish never approves it. Rendering arbitrary projects requires explicit current human approval bound to the manuscript/project hash.
 
 ## Run
 

@@ -1,6 +1,6 @@
 # Manuscript review before narration and rendering
 
-This change is stacked on PR #1. It adds a local review stage; it does not merge PR #1, supply a model, verify facts automatically, or publish a video.
+This workflow adds a local review stage. It does not supply a model, verify facts automatically, or publish a video.
 
 The intended sequence is source/fact verification, a three-point draft, human-writing polishing, factual-difference review, human approval, then licensed local audio, subtitles and rendering. Enter substantive content in the first three seconds. Use natural spoken language, keep exactly three points, stop when the explanation is complete, and do not impose a summary or suspense ending. Never invent personal experience.
 
