@@ -7,6 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "studio": "tsx src/studio-cli.ts",
     "check": "tsc --noEmit && eslint src test",
     "test": "tsx --test test/*.test.ts",
     "review": "tsx src/review-cli.ts",
