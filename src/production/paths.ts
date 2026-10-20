@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {realpath,stat} from 'node:fs/promises';
+import {realpath,stat,readFile,readdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {isInputPath} from './manifest.js';
 
@@ -25,7 +25,18 @@ export async function resolveInput(projectFile:string,relative:string):Promise<s
 export async function assertExternal(file:string):Promise<string> {
  if(!path.isAbsolute(file))throw new Error('absolute_external_path_required');
  const actual=await actualPath(file),repo=await realpath(fileURLToPath(new URL('../../',import.meta.url)));
- if(within(repo,actual)||within(actual,repo))throw new Error('output_inside_repository');
+ const roots=[repo];
+ try{
+  const marker=path.join(repo,'.git');let common=marker;
+  if(!(await stat(marker)).isDirectory()){
+   const gitdir=(await readFile(marker,'utf8')).trim().replace(/^gitdir:\s*/,'');
+   const absolute=path.resolve(repo,gitdir);common=path.resolve(absolute,(await readFile(path.join(absolute,'commondir'),'utf8')).trim());
+  }
+  roots.push(await realpath(path.dirname(common)));
+  let entries:string[]=[];try{entries=await readdir(path.join(common,'worktrees'));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;}
+  for(const entry of entries){const marker=(await readFile(path.join(common,'worktrees',entry,'gitdir'),'utf8')).trim();try{roots.push(await realpath(path.dirname(marker)));}catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;}}
+ }catch(e){if((e as NodeJS.ErrnoException).code!=='ENOENT')throw e;}
+ if(roots.some(root=>within(root,actual)||within(actual,root)))throw new Error('output_inside_repository');
  return actual;
 }
 export async function assertOutput(projectFile:string,output:string):Promise<void> {

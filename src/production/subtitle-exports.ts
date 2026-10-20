@@ -18,7 +18,7 @@ export function chaptersMetadata(project:ProductionProject):string {
 }
 export async function exportTimeline(project:ProductionProject,output:string):Promise<void> {
  validateTimeline(project);await assertExternal(output);await mkdir(path.dirname(output),{recursive:true});await mkdir(output);await mkdir(path.join(output,'scenes'));
- await writeFile(path.join(output,'subtitles.srt'),project.cues.map((c,i)=>`${i+1}\n${frameStamp(c.startFrame)} --> ${frameStamp(c.endFrame)}\n${c.text}\n`).join('\n'),{flag:'wx'});
+ await writeFile(path.join(output,'subtitles.srt'),project.cues.map((c,i)=>`${i+1}\n${frameStamp(c.startFrame,'srt','start')} --> ${frameStamp(c.endFrame,'srt','end')}\n${c.text}\n`).join('\n'),{flag:'wx'});
  for(const s of project.scenes)await writeFile(path.join(output,'scenes',`${s.id}.ass`),assForScene(project,s.id),{flag:'wx'});
  await writeFile(path.join(output,'chapters.ffmeta'),chaptersMetadata(project),{flag:'wx'});
  await writeFile(path.join(output,'storyboard.md'),'# Storyboard\n\n'+project.scenes.map(s=>`- ${frameStamp(s.from)} | ${s.id} | ${s.title.replace(/[\r\n]/g,' ')}`).join('\n')+'\n',{flag:'wx'});

@@ -20,6 +20,8 @@ For real content, follow [manuscript review](manuscript-review.md). Importing a 
 
 Read [data layout](data-layout.md) for project materials and [repository structure](repository-structure.md) for configuration and documentation. Automated checks establish structural properties, not factual accuracy or human listening quality. See the dated [validation record](validation.md) for what was actually checked.
 
+The [v2 production tools](production-tools.md) provide project initialization, immutable asset import, preflight, timeline export and media verification. They do not yet render multi-scene projects or grant manuscript approval.
+
 ## Build this documentation
 
 Use Python 3.12 in a separate environment. Install the pinned documentation dependencies, then supply an external site output directory:

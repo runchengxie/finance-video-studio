@@ -24,4 +24,7 @@ test('timeline exports create-only escaped subtitles, chapters and storyboard',a
  const ass=await readFile(path.join(out,'scenes','cash.ass'),'utf8');assert.ok(!ass.includes('{\\pos(0,0)}'));
  assert.match(await readFile(path.join(out,'chapters.ffmeta'),'utf8'),/END=3000/);
  await assert.rejects(()=>exportTimeline(parseProject(p),out));
+ const precise=parseProject({...p,events:[],cues:[{id:'one',text:'one',startFrame:0,endFrame:1},{id:'two',text:'two',startFrame:1,endFrame:2},{id:'three',text:'three',startFrame:2,endFrame:90}]});
+ const exact=path.join(root,'exact');await exportTimeline(precise,exact);
+ assert.deepEqual(parseSrt(await readFile(path.join(exact,'subtitles.srt'),'utf8'),30).map(c=>[c.startFrame,c.endFrame]),precise.cues.map(c=>[c.startFrame,c.endFrame]));
 });

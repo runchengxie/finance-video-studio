@@ -8,6 +8,7 @@
   },
   "scripts": {
     "studio": "tsx src/studio-cli.ts",
+    "tools:smoke": "tsx test/production-tools-smoke.ts",
     "check": "tsc --noEmit && eslint src test",
     "test": "tsx --test test/*.test.ts",
     "review": "tsx src/review-cli.ts",

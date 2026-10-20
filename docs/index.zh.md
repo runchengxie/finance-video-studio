@@ -20,6 +20,8 @@ npm run smoke -- /absolute/external/empty/smoke
 
 [数据目录](data-layout.md) 说明素材与输出归属，[项目结构](repository-structure.md) 解释配置和文档的存放方式。自动检查验证结构，不能证明事实正确或已经人工听校。已完成的检查见带日期的 [验证记录](validation.md)。
 
+[v2 制作工具](production-tools.md) 已支持项目初始化、不可变素材导入、预检、时间轴导出和媒体校验，尚未提供多场景渲染或文稿批准。
+
 ## 构建本文档
 
 建议使用独立的 Python 3.12 环境，安装锁定的文档依赖，并显式指定源码目录之外的构建位置。

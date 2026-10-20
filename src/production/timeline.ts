@@ -25,8 +25,8 @@ export function parseSrt(text:string,fps:30):Cue[] {
 export function validateTimeline(project:ProductionProject):void {
  const p=parseProject(project);for(const e of p.events)if(e.precision==='unresolved')throw new Error(`unresolved_event:${e.id}`);
 }
-export function frameStamp(frame:number,kind:'srt'|'ass'='srt'):string {
- const units=kind==='srt'?1000:100,n=Math.round(frame*units/30),seconds=Math.floor(n/units);
+export function frameStamp(frame:number,kind:'srt'|'ass'='srt',edge:'start'|'end'|'nearest'='nearest'):string {
+ const units=kind==='srt'?1000:100,round=edge==='start'?Math.ceil:edge==='end'?Math.floor:Math.round,n=round(frame*units/30),seconds=Math.floor(n/units);
  const h=Math.floor(seconds/3600),m=Math.floor(seconds/60)%60,s=seconds%60;
  return `${kind==='srt'?String(h).padStart(2,'0'):h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}${kind==='srt'?',':'.'}${String(n%units).padStart(kind==='srt'?3:2,'0')}`;
 }

@@ -65,6 +65,7 @@ export function parseProject(value:unknown):ProductionProject {
   if(s.template==='evidence'&&!sources.has(s.data.sourceId))throw new Error(`unknown_evidence_source:${s.id}`);
  }
  if(end!==p.durationFrames)throw new Error('scene_duration_mismatch');
+ if(p.scenes.some(s=>s.chapterId)&&p.scenes.some(s=>!s.chapterId))throw new Error('chapter_coverage');
  end=0;for(const c of p.cues){if(c.startFrame<end||c.endFrame<=c.startFrame||c.endFrame>p.durationFrames)throw new Error(`invalid_cue:${c.id}`);end=c.endFrame;}
  const sceneMap=new Map(p.scenes.map(s=>[s.id,s])),cueMap=new Map(p.cues.map(c=>[c.id,c]));
  for(const e of p.events){const s=sceneMap.get(e.sceneId),c=cueMap.get(e.cueId);if(!s||!c)throw new Error(`event_reference:${e.id}`);if(!targetIds(s).includes(e.targetId))throw new Error(`event_target:${e.id}`);const from=c.startFrame+e.offsetFrames;if(from<s.from||from+e.durationFrames>s.from+s.durationFrames)throw new Error(`event_bounds:${e.id}`);}

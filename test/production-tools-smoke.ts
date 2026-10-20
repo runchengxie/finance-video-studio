@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {readFile,writeFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {initializeProject,writeJson,readProject} from '../src/production/project-io.js';
+import {exportTimeline} from '../src/production/subtitle-exports.js';
+import {mediaTool} from '../src/production/media.js';
+import {verifyMedia} from '../src/production/verify.js';
+import {doctor} from '../src/production/doctor.js';
+
+const out=process.argv[2];if(!out||!path.isAbsolute(out))throw new Error('Supply a new absolute external directory');
+await initializeProject(out);
+const manifest=path.join(out,'synthetic.json');await writeJson(manifest,JSON.parse(await readFile(new URL('../examples/production.json',import.meta.url),'utf8')));
+const project=await readProject(manifest),timeline=path.join(out,'timeline');await exportTimeline(project,timeline);
+assert.equal((await doctor(manifest)).ok,true);
+const video=path.join(out,'synthetic.mp4');
+const encoded=mediaTool('ffmpeg',['-v','error','-n','-f','lavfi','-i','testsrc2=s=320x180:r=30:d=3','-f','lavfi','-i','sine=frequency=440:duration=3','-f','ffmetadata','-i',path.join(timeline,'chapters.ffmeta'),'-map','0:v','-map','1:a','-map_chapters','2','-t','3','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac',video]);
+assert.equal(encoded.ok,true,encoded.stderr);
+const expected={width:320,height:180,fps:30,frames:90,durationSeconds:3,videoCodec:'h264',pixelFormat:'yuv420p',audio:{required:true,codec:'aac'},chapters:[{title:'intro',startFrame:0,endFrame:90}]};
+const report=await verifyMedia(video,expected);assert.equal(report.ok,true,JSON.stringify(report));await writeJson(path.join(out,'verification.json'),report);
+const wrong=path.join(out,'wrong-expectations.json');await writeJson(wrong,{...expected,width:640});
+const cli=(args:string[],env=process.env)=>spawnSync(process.execPath,['--import','tsx','src/studio-cli.ts',...args],{encoding:'utf8',env,windowsHide:true});
+assert.equal(cli(['bad-command']).status,2);
+assert.equal(cli(['doctor',manifest],{...process.env,FFMPEG_PATH:path.join(out,'missing')}).status,3);
+const negative=path.join(out,'negative-report.json');assert.equal(cli(['verify',video,wrong,negative]).status,4);
+const saved=await readFile(negative);assert.equal(cli(['verify',video,wrong,negative]).status,2);assert.deepEqual(await readFile(negative),saved);
+await writeFile(path.join(out,'smoke-passed.txt'),'90 frames encoded/counted/decoded; chapters/audio checked; CLI exits 2/3/4 and create-only reports verified.\n',{flag:'wx'});
+console.log('Production tools smoke passed: actual media, timeline, doctor and negative CLI cases.');

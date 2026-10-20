@@ -19,4 +19,6 @@ test('signed waterfall reconciles and discontinuous chapter identifiers reject',
  assert.throws(()=>parseProject({...p,events:[],scenes:[{...s,data:{...s.data,end:{...s.data.end,value:31}}}]}));
  const scenes=['a','b','a'].map((chapterId,i)=>({...p.scenes[0],id:'scene'+i,from:i*30,durationFrames:30,chapterId}));
  assert.throws(()=>parseProject({...p,events:[],scenes}));
+ const partial=[{...p.scenes[0],id:'first',from:0,durationFrames:30,chapterId:undefined},{...p.scenes[0],id:'second',from:30,durationFrames:60,chapterId:'later'}];
+ assert.throws(()=>parseProject({...p,events:[],scenes:partial}),/chapter_coverage/);
 });
