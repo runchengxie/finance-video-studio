@@ -1,4 +1,4 @@
-import {mkdir,writeFile,link,unlink,open} from 'node:fs/promises';
+import {mkdir,writeFile,link,unlink,open,copyFile,constants} from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {hash} from '../review.js';
@@ -17,6 +17,7 @@ import {writeJson} from './project-io.js';
 import {hashFile} from './project-io.js';
 import {productionDemoFixture,type DemoVariant} from './demo.js';
 import type {EditorialSnapshot} from './snapshot.js';
+import {generateVoice} from './voice.js';
 export type BuildReport={ok:boolean;inputHash:string;tools:Record<string,string>;stages:{id:string;hit:boolean;reason:string;milliseconds:number}[];milliseconds:number;verification:VerificationReport|null;failure:string|null};
 export async function renderProduction(manifestFile:string,reviewFile:string,output:string,cache:string):Promise<BuildReport>{
  const snapshot=await snapshotProject(manifestFile),review=await loadProductionReview(reviewFile);assertProductionApproved(snapshot,review);
@@ -32,6 +33,20 @@ export async function renderProductionDemo(output:string,variant:DemoVariant):Pr
  const authorize=async()=>{await productionDemoFixture(variant);if(hash(snapshot)!==hash(await snapshotProject(manifest)))throw new Error('fixed_demo_modified');};
  await renderBuild(manifest,snapshot,path.join(output,'build'),path.join(output,'cache'),authorize,variant);
  await renderBuild(manifest,snapshot,path.join(output,'warm-build'),path.join(output,'cache'),authorize,variant);
+}
+export async function renderVoicedProductionDemo(output:string,voice:string,executeLocal:boolean):Promise<void>{
+ if(executeLocal!==true)throw new Error('explicit_local_execution_required');
+ const p=await productionDemoFixture('improved');const {assertExternal}=await import('./paths.js');await assertExternal(output);await mkdir(output);
+ const draft=path.join(output,'voice-source.json');await writeJson(draft,p);
+ const proposal=await generateVoice(draft,{voice,output:path.join(output,'voice'),executeLocal});
+ const probe=mediaTool('ffprobe',['-v','error','-show_entries','format=duration','-of','json',proposal.audio.file]);if(!probe.ok)throw new Error('voice_demo_probe_failed');
+ const seconds=Number((JSON.parse(probe.stdout) as {format:{duration:string}}).format.duration);if(seconds>36)throw new Error(`fixed_voice_exceeds_36_seconds:${seconds}`);
+ await mkdir(path.join(output,'inputs'));await copyFile(proposal.audio.file,path.join(output,'inputs','narration.wav'),constants.COPYFILE_EXCL);
+ p.inputs=[{id:'voice',path:'inputs/narration.wav',mediaType:'audio',sha256:proposal.audio.sha256,provenance:`Explicit local SAPI ${voice}. Synthetic fixture. Measured ${seconds} seconds; padded to 36. Sentence proposal retained separately.`,rights:'Original synthetic narration'}];p.render.audioId='voice';
+ const manifest=path.join(output,'project.json');await writeJson(manifest,p);const snapshot=await snapshotProject(manifest);
+ const authorize=async()=>{await productionDemoFixture('improved');if(hash(snapshot)!==hash(await snapshotProject(manifest)))throw new Error('fixed_voice_demo_modified');};
+ for(const variant of ['improved','legacy-comparison'] as const)await renderBuild(manifest,snapshot,path.join(output,variant),path.join(output,'cache'),authorize,variant);
+ await writeJson(path.join(output,'voice-comparison.json'),{synthetic:true,manualListening:false,voice,sourceAudioHash:proposal.audio.sha256,sourceSeconds:seconds,durationSeconds:36,timing:'Fixed cue schedule retained for visual comparison; synthesized speech is not word-aligned or human-audited.'});
 }
 async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output:string,cache:string,authorize:()=>Promise<void>,variant:DemoVariant='improved'):Promise<BuildReport>{
  await authorize();
