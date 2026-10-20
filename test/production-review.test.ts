@@ -3,10 +3,17 @@ import assert from 'node:assert/strict';
 import {parseProject} from '../src/production/manifest.js';
 import {productionFixture} from './production-fixture.js';
 import type {EditorialSnapshot} from '../src/production/snapshot.js';
-import {createProductionReview,importProductionPolish,approveProductionReview,assertProductionApproved,productionReviewStatus,detectProductionChanges} from '../src/production/review.js';
+import {createProductionReview,importProductionPolish,approveProductionReview,assertProductionApproved,assertProductionBuildApproved,productionReviewStatus,detectProductionChanges} from '../src/production/review.js';
 
 const snapshot=():EditorialSnapshot=>({schemaVersion:2,project:parseProject(productionFixture()),assets:[],templateRevision:'0'.repeat(64)});
 const now=new Date('2026-10-21T00:00:00Z');
+test('an independently approved replacement cannot authorize an in-flight build',()=>{
+ const initial=snapshot(),current=snapshot();current.project.title='Approved replacement';const r=createProductionReview(current);
+ const polished=importProductionPolish(r,{inputHash:r.inputHash,decision:'accepted',polished:current,changeNotes:'test replacement',skillUse:'not_used'});
+ const approved=approveProductionReview(polished,{reviewer:'test',factReviewNotes:'test',expiresAt:'2026-10-22T00:00:00Z'},now);
+ assert.doesNotThrow(()=>assertProductionApproved(current,approved,now));
+ assert.throws(()=>assertProductionBuildApproved(initial,current,approved,now),/build_snapshot_changed/);
+});
 test('full-length review remains pending until explicit exact-snapshot approval',()=>{
  const draft=snapshot();draft.project.manuscript[0]!.text='A'.repeat(4000);
  const r=createProductionReview(draft);assert.equal(r.draft.project.manuscript[0]!.text.length,4000);

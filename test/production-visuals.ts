@@ -12,6 +12,7 @@ try{
  for(const [i,scene] of scenes.entries()){
   const p=parseProject({...base,contentLanguage:i?'zh':'en',sources:[{id:'source',citation:'Original synthetic fixture / 原创虚构样例'}],scenes:[{...scene,sourceIds:['source']}],events:i?[]:base.events});
   for(const frame of [0,7,30,89]){await paint(session.page,session.font,p,scene.id,frame);const file=path.join(out,`${scene.template}-${frame}.png`);await session.page.screenshot({path:file});if(frame===30)for(const width of [360,390])mediaTool('ffmpeg',['-v','error','-i',file,'-vf',`scale=${width}:-1`,'-frames:v','1',path.join(out,`${scene.template}-${width}.png`)]);}
+  if(['metric','evidence'].includes(scene.template)){const result=mediaTool('ffmpeg',['-v','error','-loop','1','-framerate','30','-i',path.join(out,`${scene.template}-30.png`),'-frames:v','60','-c:v','libx264','-pix_fmt','yuv420p',path.join(out,`${scene.template}.mp4`)]);if(!result.ok)throw new Error(result.stderr);}
  }
  await writeFile(path.join(out,'inspection.json'),JSON.stringify({templates:6,frames:24,network:'blocked',phoneWidths:[360,390],automatedLayout:'passed',manualInspection:false}));
 }finally{await session.close();}

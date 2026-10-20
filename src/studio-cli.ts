@@ -8,11 +8,13 @@ import path from 'node:path';
 import {snapshotProject} from './production/snapshot.js';
 import {createProductionReview,importProductionPolish,approveProductionReview,productionReviewStatus,type ProductionApprovalOptions} from './production/review.js';
 import {loadProductionReview,saveProductionReview} from './production/review-io.js';
+import {renderProduction} from './production/render.js';
 
 const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
 try{
  switch(command){
+  case 'render':if(args.length!==4)throw new Error('invalid_arguments: render MANIFEST REVIEW NEW_OUTPUT CACHE');console.log(JSON.stringify(await renderProduction(required(0),required(1),required(2),required(3))));break;
   case 'init':if(args.length!==1)throw new Error('invalid_arguments');await initializeProject(required(0));break;
   case 'import':if(args.length!==3)throw new Error('invalid_arguments');console.log(JSON.stringify({revision:await importAsset(required(0),required(1),required(2))}));break;
   case 'timeline':if(args.length!==2)throw new Error('invalid_arguments');await assertOutput(required(0),required(1));await exportTimeline(await readProject(required(0)),required(1));break;

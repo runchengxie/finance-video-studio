@@ -59,3 +59,6 @@ export function approveProductionReview(record:ProductionReview,options:Producti
 export function assertProductionApproved(snapshot:EditorialSnapshot,record:ProductionReview,now=new Date()):void {
  const r=parseProductionReview(record);checkedSnapshot(snapshot);if(productionReviewStatus(r,now)!=='approved'||hash(snapshot)!==r.approval?.snapshotHash)throw new Error('current_exact_snapshot_approval_required');
 }
+export function assertProductionBuildApproved(initial:EditorialSnapshot,current:EditorialSnapshot,record:ProductionReview,now=new Date()):void {
+ if(hash(initial)!==hash(current))throw new Error('build_snapshot_changed');assertProductionApproved(current,record,now);
+}

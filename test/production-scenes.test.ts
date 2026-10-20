@@ -19,4 +19,15 @@ test('markup escapes claims and removes absent caption backgrounds',()=>{
  p.cues=[];p.events=[];assert.ok(!sceneHtml(p,p.scenes[0]!.id,0,'').includes('class="caption"'));
  assert.equal(sceneHtml(p,p.scenes[0]!.id,0,''),sceneHtml(p,p.scenes[0]!.id,0,''));
 });
+test('evidence always displays its required citation even without scene sourceIds',()=>{
+ const p=parseProject(productionFixture()),s=p.scenes[0]!;
+ p.sources=[{id:'evidence-source',citation:'Unique evidence citation'}];p.events=[];
+ p.scenes=[{...s,sourceIds:[],template:'evidence',data:{id:'excerpt',text:'An attributed statement',sourceId:'evidence-source'}}];
+ assert.ok(sceneHtml(p,s.id,0,'').includes('Unique evidence citation'));
+});
+test('dense process labels reject rather than overlapping their details',()=>{
+ const p=parseProject(productionFixture()),s=p.scenes[0]!;p.events=[];
+ p.scenes=[{...s,template:'process',data:{items:[{id:'a',label:'中'.repeat(50),detail:'DETAIL SHOULD REMAIN LEGIBLE'},{id:'b',label:'Check',detail:'Short'},{id:'c',label:'Inspect',detail:'Short'}]}}];
+ assert.throws(()=>sceneHtml(p,s.id,0,''),/process_density/);
+});
 
