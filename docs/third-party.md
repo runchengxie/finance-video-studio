@@ -6,5 +6,6 @@ MIT in LICENSE covers original project code only. Dependencies retain their own 
 - Playwright and its downloaded Chromium: Apache-2.0 and Chromium's separate third-party licenses. Browser revision is specified by the exact Playwright package and package lock.
 - FFmpeg is an external executable, not redistributed here. Licensing depends on the installed build; builds with libx264 can be GPL. Users must comply with their chosen build's terms.
 - csv-parse: MIT; Zod: MIT. Development tools have their respective package licenses.
+- Documentation uses MkDocs (BSD), Material for MkDocs (MIT) and mkdocs-static-i18n (MIT), with their dependencies' own notices. Exact versions and hashes are pinned in the documentation requirements lock. The site uses local theme assets and system fonts.
 
 No third-party video, audio, market feed or research content is included. The example numbers and narration text were created for this project. No voice recording is bundled.

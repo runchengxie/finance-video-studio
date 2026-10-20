@@ -1,0 +1,43 @@
+site_name: Finance Video Studio
+site_url: https://runchengxie.github.io/finance-video-studio/
+repo_url: https://github.com/runchengxie/finance-video-studio
+theme:
+  name: material
+  font: false
+  features:
+    - navigation.sections
+    - navigation.top
+exclude_docs: |
+  superpowers/
+  requirements.in
+  requirements.txt
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: zh
+          name: 简体中文
+          build: true
+          site_name: 财经视频制作工具
+          nav_translations:
+            Home: 首页
+            Manuscript review: 文稿审阅
+            Data layout: 数据目录
+            Repository structure: 项目结构
+            Third-party notices: 第三方说明
+            Validation: 验证记录
+nav:
+  - Home: index.md
+  - Manuscript review: manuscript-review.md
+  - Data layout: data-layout.md
+  - Repository structure: repository-structure.md
+  - Third-party notices: third-party.md
+  - Validation: validation.md

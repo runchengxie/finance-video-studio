@@ -37,10 +37,10 @@
 
 **Interfaces:** Existing English guide paths remain valid. `python -m mkdocs build --strict --site-dir ABSOLUTE_EXTERNAL` builds the site. Node config files remain in the repository root; the structure guide links to them rather than maintaining copies.
 
-- [ ] Move the two prose files and repair references; preserve validation dates and dependency notices. Translate actual implemented behavior, distinguishing this plan from shipped features.
-- [ ] Configure suffix i18n (`en` default, `zh` alternative), translated navigation, local assets, `font: false`, no analytics, and excluded internal planning pages. Root README links to the docs home and explains the standard config locations.
-- [ ] Compile a fully pinned dependency lock from the three exact top-level versions for Python 3.12, install in an external task venv, and build strictly to a new external directory.
-- [ ] Inspect generated English/Chinese home, review and license pages; assert language alternates resolve under a repository URL prefix, both search indexes exist, local links resolve and no remote font/CDN references are emitted. Add the strict docs build to CI after dependency provisioning.
+- [x] Move the two prose files and repair references; preserve validation dates and dependency notices. Translate actual implemented behavior, distinguishing this plan from shipped features.
+- [x] Configure suffix i18n (`en` default, `zh` alternative), translated navigation, local assets, `font: false`, no analytics, and excluded internal planning pages. Root README links to the docs home and explains the standard config locations.
+- [x] Compile a fully pinned dependency lock from the three exact top-level versions for Python 3.12, install in an external task venv, and build strictly to a new external directory.
+- [x] Inspect generated English/Chinese home, review and license pages; assert language alternates resolve under a repository URL prefix, both search indexes exist, local links resolve and no remote font/CDN references are emitted. Add the strict docs build to CI after dependency provisioning.
 - [ ] Run `npm run check`, `npm test`, strict docs build and link checks; commit and request review. Merge after current-target checks, then continue the next PR from merged main.
 
 ## PR B — Contracts and tools

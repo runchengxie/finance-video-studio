@@ -5,3 +5,4 @@ dist/
 *.srt
 test-results/
 *.log
+site/

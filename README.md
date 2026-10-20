@@ -4,6 +4,8 @@ Deterministic TypeScript finance explainer videos with a local manuscript-review
 
 Start with the [manuscript review workflow](docs/manuscript-review.md) for real drafts. Human-writing is an optional locally installed skill, not a bundled AI service. Default state is pending manual work; importing polish never approves it. Rendering arbitrary projects requires explicit current human approval bound to the manuscript/project hash.
 
+Read the [English documentation](docs/index.md) or [简体中文文档](docs/index.zh.md). The MkDocs site has a language selector; build instructions are in the documentation home. Configuration files remain at the repository root; see [repository structure](docs/repository-structure.md).
+
 ## Run
 
 Requires Node 24, npm, and FFmpeg/ffprobe with libx264 on PATH. Install dependencies with `npm ci --ignore-scripts`, then `npx --no-install playwright install chromium` (Linux may need `--with-deps`). Installation needs internet; tests and rendering do not. The lockfile pins dependencies, browser revision and the OFL Chinese font package.
@@ -30,4 +32,4 @@ Set `chart` to `line` or `bar`; units are explicitly `USD million` or `%`. Input
 
 CI provisions dependencies before executing checks inside a Linux network namespace without network access. No secrets, publishing, video uploads or deployment are configured. Actions use fixed commit SHAs, read-only permissions and a timeout. The Ubuntu runner's FFmpeg/system libraries are not bit-for-bit pinned, so encoded byte identity across operating systems is not guaranteed. Browser, font and npm dependencies are locked. Rendering is currently sequential and prioritizes reproducibility over speed.
 
-Only synthetic examples and original code belong in this public repository. See [third-party licenses](THIRD_PARTY.md). Never add private scripts, research, vendor prices, credentials or unlicensed audio/video. MIT does not relicense dependencies or externally supplied media.
+Only synthetic examples and original code belong in this public repository. See [third-party licenses](docs/third-party.md). Never add private scripts, research, vendor prices, credentials or unlicensed audio/video. MIT does not relicense dependencies or externally supplied media.
