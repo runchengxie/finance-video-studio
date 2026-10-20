@@ -1,0 +1,1 @@
+export const designTokens={width:1920,height:1080,background:'#0c1520',surface:'#152536',ink:'#f0f5f7',muted:'#a7bacb',accent:'#61dac3',secondary:'#e6ac68',negative:'#e98c94',safe:96,captionTop:880} as const;
