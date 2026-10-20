@@ -2,6 +2,8 @@
 
 This workflow adds a local review stage. It does not supply a model, verify facts automatically, or publish a video.
 
+Apply the [editorial review brief](editorial-review.md) before polishing any manuscript. This page describes the v1 three-caption format; full manuscripts use [v2 production review](production-rendering.md), with the same editorial requirements.
+
 The intended sequence is source/fact verification, a three-point draft, human-writing polishing, factual-difference review, human approval, then licensed local audio, subtitles and rendering. Enter substantive content in the first three seconds. Use natural spoken language, keep exactly three points, stop when the explanation is complete, and do not impose a summary or suspense ending. Never invent personal experience.
 
 ## Skill availability and honest execution
@@ -14,7 +16,7 @@ The repository contains original adapter code and task-specific guidance, not a 
 
 Prepare a project JSON with a title and exactly three timed captions. The first starts at frame zero. `fictional: false` is permitted for real material; this label is not evidence of verification. Keep manuscripts, review records, sources, audio and machine configuration outside Git, under the resolved project data/config roots or a private temporary directory.
 
-This minimal version reviews the existing title plus three caption segments (up to 45 characters each). Long scripts need a future segmentation design; the adapter does not silently truncate them.
+This minimal version reviews the existing title plus three caption segments (up to 45 characters each). Full scripts use the separate v2 snapshot workflow; this v1 adapter does not silently truncate them or accept v2 records.
 
 ```sh
 npm run review -- init /absolute/draft.json /absolute/01-pending.json

@@ -6,6 +6,8 @@ Start with the [manuscript review workflow](docs/manuscript-review.md) for real 
 
 Read the [English documentation](docs/index.md) or [简体中文文档](docs/index.zh.md). The MkDocs site has a language selector; build instructions are in the documentation home. Configuration files remain at the repository root; see [repository structure](docs/repository-structure.md).
 
+Apply the [editorial review brief](docs/editorial-review.md) when writing or revising manuscripts. It checks the question's premises and evidence scope before prose revision, with dated sources and useful specialist objections. The [Chinese prompt](docs/editorial-review.zh.md) records the Chinese writing requirements. This remains an operator/agent task rather than an automatic model approval.
+
 ## Run
 
 Requires Node 24, npm, and FFmpeg/ffprobe with libx264 on PATH. Install dependencies with `npm ci --ignore-scripts`, then `npx --no-install playwright install chromium` (Linux may need `--with-deps`). Installation needs internet; tests and rendering do not. The lockfile pins dependencies, browser revision and the OFL Chinese font package.

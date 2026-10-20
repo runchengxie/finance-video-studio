@@ -30,6 +30,7 @@ plugins:
           nav_translations:
             Home: 首页
             Manuscript review: 文稿审阅
+            Editorial review brief: 稿件审阅提示词
             Production tools: 制作工具
             Production rendering: 视频生成
             Local voice: 本机配音
@@ -41,6 +42,7 @@ plugins:
 nav:
   - Home: index.md
   - Manuscript review: manuscript-review.md
+  - Editorial review brief: editorial-review.md
   - Production tools: production-tools.md
   - Production rendering: production-rendering.md
   - Local voice: local-voice.md

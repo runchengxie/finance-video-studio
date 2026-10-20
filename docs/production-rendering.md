@@ -2,6 +2,8 @@
 
 The v2 renderer supports six original templates at 1920×1080 and 30 fps. Manuscript, cues, chart data, sources, input hashes and renderer revisions form one editorial snapshot. V1 commands and reviews remain separate.
 
+Use the [editorial review brief](editorial-review.md) for premise checks, dated evidence and prose revision before submitting a complete snapshot for approval. Keep its substantive review notes with the external project.
+
 ## Review the exact revision
 
 ```sh
