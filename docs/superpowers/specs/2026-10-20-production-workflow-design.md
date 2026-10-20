@@ -1,6 +1,6 @@
 # Reusable finance-video production workflow
 
-Status: proposed design for human review; implementation has not started.
+Status: production-pipeline design approved by the user on 2026-10-21. Implementation-plan review is pending. The documentation extension below reflects the user's additional request on that date.
 
 ## Outcome and scope
 
@@ -132,3 +132,11 @@ Historical video regeneration is a final separately gated action: present the ex
 - Source/docs changes use reviewed PRs with the user's standing integration authorization. Verify merged main and remove only this task's completed branches/worktrees. No deployment or video publication is configured.
 
 The work is complete when releases 1–3 are merged and documented, all synthetic acceptance artifacts are generated and inspected, known historical projects have validated pending adaptations, and remaining human approvals/listening items are explicitly listed. Do not describe a pending historical adaptation as a newly finished film.
+
+## Documentation extension requested on 2026-10-21
+
+Move `THIRD_PARTY.md` to `docs/third-party.md` and `VALIDATION.md` to `docs/validation.md`, updating all links. Preserve the existing validation record as dated evidence; do not relabel it as new validation. Keep `README.md`, `LICENSE`, `AGENTS.md`, npm package/lock files, TypeScript and ESLint configuration in their functional root locations. Explain their roles in a bilingual repository-structure page rather than copying configuration into documentation.
+
+Add MkDocs with Material and static-i18n, English as default and Simplified Chinese as an explicit language choice. Use suffix-localized pages, keeping existing English document paths stable. Cover getting started, review, data layout, configuration, third-party notices and validation in both languages; add production commands as they ship, without documenting proposed commands as available.
+
+Pin MkDocs 1.6.1, Material 9.7.7 and static-i18n 1.3.1, with a compiled transitive dependency lock for Python 3.12. Keep doc dependencies separate from Node dependencies. Build strictly into an explicitly supplied external directory. Use local theme assets and system fonts with no remote font, analytics or CDN requests. Verify locale selectors and links under a repository-subpath URL. CI builds documentation but does not deploy or publish a site without a separate request.
