@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 2,
+  "id": "synthetic",
+  "title": "Fictional cash comparison",
+  "contentLanguage": "en",
+  "fictional": true,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationFrames": 90,
+  "inputs": [],
+  "sources": [],
+  "manuscript": [
+    {
+      "id": "body",
+      "text": "Fictional operating cash and equipment payments.",
+      "sourceIds": []
+    }
+  ],
+  "scenes": [
+    {
+      "id": "cash",
+      "from": 0,
+      "durationFrames": 90,
+      "title": "Fictional comparison",
+      "template": "comparison",
+      "chapterId": "intro",
+      "sourceIds": [],
+      "data": {
+        "unit": "USD million",
+        "items": [
+          {
+            "id": "operating",
+            "label": "Operating cash",
+            "value": 30
+          },
+          {
+            "id": "equipment",
+            "label": "Equipment",
+            "value": 100
+          }
+        ],
+        "difference": {
+          "leftId": "operating",
+          "rightId": "equipment",
+          "label": "Difference"
+        }
+      }
+    }
+  ],
+  "cues": [
+    {
+      "id": "cue-1",
+      "text": "Fictional comparison",
+      "startFrame": 0,
+      "endFrame": 90
+    }
+  ],
+  "events": [
+    {
+      "id": "reveal-operating",
+      "sceneId": "cash",
+      "cueId": "cue-1",
+      "targetId": "operating",
+      "action": "reveal",
+      "offsetFrames": 0,
+      "durationFrames": 15,
+      "precision": "cue_start"
+    }
+  ],
+  "render": {
+    "theme": "studio-v1",
+    "crf": 20,
+    "audioId": null,
+    "normalization": null
+  }
+}
