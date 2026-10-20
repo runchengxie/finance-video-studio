@@ -12,7 +12,7 @@ export async function paint(page:Page,font:string,p:ProductionProject,sceneId:st
  const markup=sceneHtml(p,sceneId,frame,loaded.has(page)?'':font,variant);
  if(!loaded.has(page)){await page.setContent(markup);loaded.add(page);}
  else await page.evaluate(html=>{const doc=new DOMParser().parseFromString(html,'text/html');const style=doc.querySelector('style')!.textContent!;let dynamic=document.querySelector('#production-style');if(!dynamic){dynamic=document.createElement('style');dynamic.id='production-style';document.head.append(dynamic);}dynamic.textContent=style;document.body.innerHTML=doc.body.innerHTML;},markup);
- await page.evaluate(()=>document.fonts.ready);
+ await page.evaluate(async()=>{await document.fonts.load('30px "Noto Sans SC"','虚构示例');await document.fonts.ready;});
  const problems=await page.evaluate(()=>{
   const issues:string[]=[];if(!document.fonts.check('30px "Noto Sans SC"','虚构示例'))issues.push('missing_font');
   const caption=document.querySelector('.caption')?.getBoundingClientRect();
