@@ -8,6 +8,7 @@ import {html,schema,srt,type Project} from './core.js';
 import {writeFile} from 'node:fs/promises';
 import {assertApproved,type Review} from './review.js';
 import {demoFixture,type DemoFixture} from './demo.js';
+import {isExternalPath} from './path-policy.js';
 
 export async function fontCss():Promise<string>{
   const root=fileURLToPath(new URL('../node_modules/@fontsource/noto-sans-sc/',import.meta.url));
@@ -34,7 +35,7 @@ async function renderFrames(input:Project,out:string,audio?:string):Promise<void
   const p=schema.parse(input);
   if(!path.isAbsolute(out)) throw new Error('Output directory must be absolute and outside repository');
   const repo=fileURLToPath(new URL('../',import.meta.url));
-  if(path.relative(repo,out)==='' || !path.relative(repo,out).startsWith('..')) throw new Error('Output must be outside repository');
+  if(!isExternalPath(repo,out)) throw new Error('Output must be outside repository');
   await mkdir(out,{recursive:true});
   if((await readdir(out)).length) throw new Error('Output directory must be empty');
   const font=await fontCss();

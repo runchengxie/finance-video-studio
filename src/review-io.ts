@@ -4,6 +4,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {z} from 'zod';
 import {parseReview,status,importPolish,createReview,hash,type Review} from './review.js';
+import {isExternalPath} from './path-policy.js';
 
 export const adapterConfigSchema=z.object({mode:z.enum(['manual','local_command']).default('manual'),extraTerms:z.array(z.string().min(1).max(80)).max(100).default([]),skillPath:z.string().optional(),command:z.string().optional(),args:z.array(z.string()).max(30).default([]),timeoutMs:z.number().int().min(100).max(60000).default(30000)}).strict();
 export type AdapterConfig=z.infer<typeof adapterConfigSchema>;
@@ -17,8 +18,7 @@ export async function loadReview(file:string):Promise<Review>{
 }
 function requireExternal(file:string):void{
  if(!path.isAbsolute(file))throw new Error('Review output must be an absolute external path');
- const relative=path.relative(fileURLToPath(new URL('../',import.meta.url)),file);
- if(relative===''||!relative.startsWith('..'))throw new Error('Keep manuscripts and review records outside the repository');
+ if(!isExternalPath(fileURLToPath(new URL('../',import.meta.url)),file))throw new Error('Keep manuscripts and review records outside the repository');
 }
 export async function saveReview(file:string,review:Review):Promise<void>{
  requireExternal(file);

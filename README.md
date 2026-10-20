@@ -18,6 +18,8 @@ npm run review:example -- /absolute/external/empty/review-example
 
 Windows example output path: `$env:TEMP/finance-demo-unique`. Output paths must be absolute, empty and outside this checkout. For permanent output, resolve your machine's configured data root and use its `finance-video-studio` directory. No machine-specific path is embedded in the code.
 
+See [local data layout](docs/data-layout.md) for organizing historical experiments, task runs and migration records without mixing private materials into this repository.
+
 The fixed demo is 900 integer frames at 30 fps, 1280×720, approximately 30 seconds. It contains **fictional data and three Chinese explanatory points**. Default output is **silent, not a finished narrated video**. Outputs include H.264/yuv420p MP4, SRT, individual PNG frames and a manifest with keyframe hashes. To add your own licensed local audio, append its path after the output directory. Audio is encoded as AAC, padded or trimmed to the video duration. No TTS or remote media service is used. Arbitrary JSON/CSV content uses the reviewed render command documented above. The fixed demo does not accept arbitrary project files or CSV overrides.
 
 Set `chart` to `line` or `bar`; units are explicitly `USD million` or `%`. Input is strict JSON with finite nonnegative values, bounded label lengths and ordered, nonoverlapping caption intervals `[start,end)`. One displayed decimal uses Intl decimal half-expand rounding. Titles, labels and subtitles are escaped. Rendering rejects detected text overflow and missing loaded font faces. It blocks all browser network requests.
