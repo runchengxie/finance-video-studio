@@ -1,0 +1,15 @@
+import {z} from 'zod';
+import type {Scene} from '../manifest.js';
+import {legacyFile,legacyJson} from './io.js';
+import {pendingProject,type AdaptedContent} from './types.js';
+const finite=z.number().finite();
+export async function adaptFixedSample(root:string):Promise<AdaptedContent>{
+ const facts=z.object({quarter:z.string(),unit:z.string(),operating:finite,capex:finite,dividends:finite,otherInvesting:finite,otherFinancing:finite,fx:finite,cashIncrease:finite,source:z.url(),page:z.number()}).strict().parse(await legacyJson(root,'src/data.json'));
+ const segments=z.array(z.object({start:finite.nonnegative(),duration:finite.positive(),text:z.string().min(1),file:z.string(),rawDuration:finite,tempo:finite}).strict()).min(1).parse(await legacyJson(root,'src/segments.json'));
+ const data={unit:facts.unit,start:{id:'operating',label:'经营现金净流入',value:facts.operating},steps:[{id:'capex',label:'资本开支',value:-facts.capex},{id:'dividends',label:'现金股息',value:-facts.dividends},{id:'other',label:'其他净影响（含汇率）',value:facts.otherInvesting+facts.otherFinancing+facts.fx}],end:{id:'increase',label:'现金净增',value:facts.cashIncrease}};
+ const scenes:Scene[]=segments.map((s,i)=>({id:`scene-${i}`,from:Math.round(s.start*30),durationFrames:Math.round(s.duration*30),title:`${facts.quarter} · ${['经营现金','资本开支','现金股息','其他净影响','现金净增'][i]??'历史分段'}`,chapterId:'cashflow',sourceIds:['source'],template:'waterfall',data}));
+ const cues=segments.map((s,i)=>({id:`cue-${i}`,text:s.text,startFrame:Math.round(s.start*30),endFrame:Math.round((s.start+s.duration)*30)}));
+ const project=pendingProject(`${facts.quarter} 现金流迁移待审`,scenes,cues,segments.map((s,i)=>({id:`block-${i}`,text:s.text,sourceIds:['source']})),[{id:'source',citation:`Historical source, ${facts.quarter}, page ${facts.page}; not freshly reverified`,url:facts.source}]);
+ const ids=['operating','capex','dividends','other','increase'];project.events=scenes.slice(0,5).map((s,i)=>({id:`focus-${i}`,sceneId:s.id,cueId:cues[i]!.id,targetId:ids[i]!,action:'highlight',offsetFrames:0,durationFrames:Math.min(20,s.durationFrames),precision:'cue_start'}));
+ return {project,selected:[{source:await legacyFile(root,'src/data.json'),name:'data.json',mediaType:'data'},{source:await legacyFile(root,'src/segments.json'),name:'segments.json',mediaType:'data'},{source:await legacyFile(root,'public/narration.wav'),name:'narration.wav',mediaType:'audio'}],mappings:scenes.map(s=>({sourceId:s.id,targetId:s.id,note:'Original signed cash components; new shared waterfall geometry'})),unsupportedFeatures:segments.length===5?[]:['fixed_sample_expected_five_semantic_segments'],differences:['Original manuscript and segment durations retained.','Data: original raw financial values/units replace normalized rounded chart labels; spoken normalized numbers remain original claims requiring review.','Visual: waterfall replaces bespoke Remotion geometry; no legacy authorization inherited.','Timing: legacy round-to-nearest frame conversion retained; new cue-linked emphasis uses cue starts.']};
+}
