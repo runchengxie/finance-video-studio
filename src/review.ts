@@ -28,8 +28,11 @@ function canonical(value:unknown):string{
 export function hash(value:unknown):string{return createHash('sha256').update(canonical(value)).digest('hex');}
 function claims(p:Project):Record<string,string>{return Object.fromEntries([['title',p.title],...p.captions.map((c,i)=>[`captions.${i}`,c.text])]);}
 export function detectChanges(before:Project,after:Project,extraTerms:string[]):FactChange[]{
- const a=claims(before),b=claims(after),changes:FactChange[]=[];
- for(const field of Object.keys(a)){
+ return detectTextChanges(claims(before),claims(after),extraTerms);
+}
+export function detectTextChanges(a:Record<string,string>,b:Record<string,string>,extraTerms:string[],includeNewFields=false):FactChange[]{
+ const changes:FactChange[]=[];
+ for(const field of includeNewFields?[...new Set([...Object.keys(a),...Object.keys(b)])]:Object.keys(a)){
   const extract=(text:string)=>{
    const normalized=text.normalize('NFKC');
    return {
@@ -40,7 +43,7 @@ export function detectChanges(before:Project,after:Project,extraTerms:string[]):
     qualifiers:[...new Set([...defaultTerms,...extraTerms])].flatMap(term=>Array.from(normalized.matchAll(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi')),()=>term))
    };
   };
-  const x=extract(a[field]!),y=extract(b[field]??'');
+  const x=extract(a[field]??''),y=extract(b[field]??'');
   for(const category of kind.options) if(hash(x[category])!==hash(y[category]))changes.push({field,kind:category,before:x[category],after:y[category]});
  }
  return changes;

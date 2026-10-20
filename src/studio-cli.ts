@@ -5,6 +5,9 @@ import {assertOutput} from './production/paths.js';
 import {verifyMedia,mediaExpectationsSchema} from './production/verify.js';
 import {ToolUnavailableError} from './production/media.js';
 import path from 'node:path';
+import {snapshotProject} from './production/snapshot.js';
+import {createProductionReview,importProductionPolish,approveProductionReview,productionReviewStatus,type ProductionApprovalOptions} from './production/review.js';
+import {loadProductionReview,saveProductionReview} from './production/review-io.js';
 
 const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
@@ -17,6 +20,14 @@ try{
    if(args.length!==3)throw new Error('invalid_arguments');
    if(args.some(p=>!path.isAbsolute(p)))throw new Error('absolute_paths_required');
    const report=await verifyMedia(required(0),mediaExpectationsSchema.parse(await readJson(required(1))));await writeJson(required(2),report);console.log(JSON.stringify({ok:report.ok,report:required(2)}));if(!report.ok)process.exitCode=4;break;
+  }
+  case 'review':{
+   const [action,...values]=args;const at=(i:number)=>{if(!values[i])throw new Error('invalid_arguments');return values[i]!;};
+   if(action==='init'&&values.length===2)await saveProductionReview(at(1),createProductionReview(await snapshotProject(at(0))));
+   else if(action==='import'&&values.length===3)await saveProductionReview(at(2),importProductionPolish(await loadProductionReview(at(0)),await readJson(at(1))));
+   else if(action==='approve'&&values.length===4&&values[3]==='--confirm-review')await saveProductionReview(at(2),approveProductionReview(await loadProductionReview(at(0)),await readJson(at(1)) as ProductionApprovalOptions));
+   else if(action==='status'&&values.length===1)console.log(JSON.stringify({status:productionReviewStatus(await loadProductionReview(at(0)))}));
+   else throw new Error('invalid_review_arguments: explicit --confirm-review required for approval');break;
   }
   case 'doctor':{
    if(args.length!==1&&!(args.length===3&&args[1]==='--workspace'))throw new Error('invalid_arguments');
