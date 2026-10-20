@@ -33,3 +33,6 @@ Set `chart` to `line` or `bar`; units are explicitly `USD million` or `%`. Input
 CI provisions dependencies before executing checks inside a Linux network namespace without network access. No secrets, publishing, video uploads or deployment are configured. Actions use fixed commit SHAs, read-only permissions and a timeout. The Ubuntu runner's FFmpeg/system libraries are not bit-for-bit pinned, so encoded byte identity across operating systems is not guaranteed. Browser, font and npm dependencies are locked. Rendering is currently sequential and prioritizes reproducibility over speed.
 
 Only synthetic examples and original code belong in this public repository. See [third-party licenses](docs/third-party.md). Never add private scripts, research, vendor prices, credentials or unlicensed audio/video. MIT does not relicense dependencies or externally supplied media.
+
+The [v2 production renderer](docs/production-rendering.md) adds six templates, full editorial snapshots, cue-linked events, verified segment caches and fixed 36-second comparison examples. Run `npm run production:example -- /absolute/new-output improved` for the tone-based example.
+

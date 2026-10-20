@@ -1,6 +1,6 @@
 # 制作项目工具
 
-v2 工具可以初始化外部项目、导入本地素材、检查准备状态、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准尚待交付；这些工具不会批准任何稿件。
+v2 工具可以初始化外部项目、导入本地素材、检查准备状态、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准参见[审核后生成视频](production-rendering.md)；检查工具不会批准任何稿件。
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -47,3 +47,4 @@ npm run studio -- verify /absolute/video.mp4 /absolute/expectations.json /absolu
 退出码为 0 表示成功，2 表示参数、清单、路径或已存在的输出有问题，3 表示工具不可用或失败，4 表示媒体不满足预期。预检 JSON 输出到 stdout，命令错误输出到 stderr；程序消费输出时可用 `npm --silent run studio -- ...`。
 
 `npm run tools:smoke -- /absolute/new-smoke-dir` 在离线环境中验证合成媒体、时间轴、错误规格、工具缺失和报告拒绝覆盖。生成的是测试音，不是旁白。
+

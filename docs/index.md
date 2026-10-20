@@ -16,11 +16,11 @@ npm run smoke -- /absolute/external/empty/smoke
 
 The [fixed demo](https://github.com/runchengxie/finance-video-studio/blob/main/examples/demo.json) contains fictional data and is silent by default. `npm run demo -- /absolute/external/empty/demo` renders its 900 frames at 1280×720 and 30 fps. Outputs include MP4, subtitles, retained frames and a render manifest. An explicitly supplied licensed local audio path can be appended; there is no bundled narration service.
 
-For real content, follow [manuscript review](manuscript-review.md). Importing a polished draft does not approve it. Rendering requires current explicit human approval bound to the exact project hash. The existing v1 review handles a title and three short captions; the proposed multi-scene workflow is not yet shipped.
+For real content, importing a polished draft does not approve it. Rendering requires current explicit human approval bound to the exact project hash. [V1 manuscript review](manuscript-review.md) handles a title and three short captions; [v2 production rendering](production-rendering.md) supports full manuscripts and multi-scene projects.
 
 Read [data layout](data-layout.md) for project materials and [repository structure](repository-structure.md) for configuration and documentation. Automated checks establish structural properties, not factual accuracy or human listening quality. See the dated [validation record](validation.md) for what was actually checked.
 
-The [v2 production tools](production-tools.md) provide project initialization, immutable asset import, preflight, timeline export and media verification. They do not yet render multi-scene projects or grant manuscript approval.
+The [v2 production tools](production-tools.md) provide project initialization, immutable asset import, preflight, timeline export and media verification. Review and rendering commands are documented in the [production guide](production-rendering.md).
 
 ## Build this documentation
 
@@ -32,3 +32,6 @@ python -m mkdocs build --strict --site-dir /absolute/external/docs-build
 ```
 
 The language selector switches between English and Simplified Chinese. Documentation uses local theme assets and system fonts. CI builds the site; no documentation deployment is configured.
+
+For six templates and multi-scene videos, follow [reviewed production rendering](production-rendering.md).
+

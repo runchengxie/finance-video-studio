@@ -25,4 +25,5 @@ jobs:
         run: '"$RUNNER_TEMP/docs-venv/bin/python" -m mkdocs build --strict --site-dir "$RUNNER_TEMP/finance-docs"'
       - name: Offline checks and actual video decode
         run: |
-          sudo unshare --net -- runuser -u "$(id -un)" -- env HOME="$HOME" PATH="$PATH" bash -c 'test -z "$(ip route)" && npm run check && npm test && npm run smoke -- "$1" && npm run review:example -- "$2" && npm run tools:smoke -- "$3"' bash "$RUNNER_TEMP/finance-smoke" "$RUNNER_TEMP/review-example" "$RUNNER_TEMP/production-tools"
+          sudo unshare --net -- runuser -u "$(id -un)" -- env HOME="$HOME" PATH="$PATH" bash -c 'test -z "$(ip route)" && npm run check && npm test && npm run smoke -- "$1" && npm run review:example -- "$2" && npm run tools:smoke -- "$3" && npm run production:example -- "$4" improved' bash "$RUNNER_TEMP/finance-smoke" "$RUNNER_TEMP/review-example" "$RUNNER_TEMP/production-tools" "$RUNNER_TEMP/production-film"
+

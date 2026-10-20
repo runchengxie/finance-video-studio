@@ -89,7 +89,7 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 - [x] Write failing tests using a tiny FFmpeg-created synthetic video/tone: correct properties pass; wrong dimensions/frame count/audio/chapters fail with named checks; corrupt/truncated media fails decode. Existing reports are not overwritten.
 - [x] Generate a clip with deliberate black/silent intervals; test configured allowed intervals pass and unexpected intervals fail. Preserve scan events, thresholds, measured loudness, tool versions, input hash and explicit `manualListening: false` without implying fact verification.
 - [x] Implement shell-free bounded tool execution with explicit errors, frame counting, tolerances, optional scans and safe JSON report creation.
-- [ ] Run actual tool smoke offline plus existing check/test/smoke/review example. Add new smoke to offline CI, review PR B against current main, merge and clean its completed task branch/worktree.
+- [x] Run actual tool smoke offline plus existing check/test/smoke/review example. Add new smoke to offline CI, review PR B against current main, merge and clean its completed task branch/worktree.
 
 ## PR C — Reviewed production and visual sample
 
@@ -99,10 +99,10 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** Export `ProductionReview`, `ProductionApprovalOptions`; `createProductionReview(snapshot: EditorialSnapshot): ProductionReview`, `importProductionPolish(record: ProductionReview, result: unknown): ProductionReview`, `approveProductionReview(record: ProductionReview, options: ProductionApprovalOptions, now?: Date): ProductionReview`, `assertProductionApproved(snapshot: EditorialSnapshot, record: ProductionReview, now?: Date): void`. Save review revisions exclusively; commands are `studio review init|import|approve|status` with explicit approval confirmation.
 
-- [ ] Write failing tests: full manuscript beyond v1 limits survives; pending/rejected/expired/future-issued records cannot render; import never approves; added/deleted manuscript or cue IDs appear in diffs; changed source/number/unit/qualifier needs review; altered facts/timing/inputs cannot enter through text polish.
-- [ ] Assert edited envelope, stale declared or actual input hashes and a v1 envelope all reject. Editing cached status never grants approval; no executable adapter is inferred or automatically invoked.
-- [ ] Implement canonical full snapshot/review hashes, policy-bound differences and manual explicit approval. Content-affecting changes require new snapshots. No generic skip-review path is introduced.
-- [ ] Run focused and unchanged v1 regression tests, full check/test, and commit.
+- [x] Write failing tests: full manuscript beyond v1 limits survives; pending/rejected/expired/future-issued records cannot render; import never approves; added/deleted manuscript or cue IDs appear in diffs; changed source/number/unit/qualifier needs review; altered facts/timing/inputs cannot enter through text polish.
+- [x] Assert edited envelope, stale declared or actual input hashes and a v1 envelope all reject. Editing cached status never grants approval; no executable adapter is inferred or automatically invoked.
+- [x] Implement canonical full snapshot/review hashes, policy-bound differences and manual explicit approval. Content-affecting changes require new snapshots. No generic skip-review path is introduced.
+- [x] Run focused and unchanged v1 regression tests, full check/test, and commit.
 
 ### Task 7: Six templates, events and visual checks
 
@@ -110,10 +110,10 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** Export typed `designTokens` and English/Chinese label catalogs. `sceneState(project: ProductionProject, sceneId: string, frame: number): SceneState` deterministically resolves events; define/export `SceneState`. `sceneHtml(project: ProductionProject, sceneId: string, frame: number, fontCss: string): string` renders the six strict template variants and caption/qualifier/source layers.
 
-- [ ] Write failing tests for before/during/after reveal/highlight/compare/annotate, cue-offset boundaries, missing targets and escaped user text. Identical frame inputs produce identical state/markup; comparisons retain zero baselines, waterfall values reconcile and trends show explicit units/time intervals.
-- [ ] Implement tokens and layouts with one principal focus per stage, directly connected comparison differences, persistent object geometry and captions whose background disappears when absent. Every UI string uses the selected locale; default English, explicit Chinese choice.
-- [ ] Render every template plus event intermediate frames using the pinned browser/font offline. Automatically reject missing font, out-of-frame text and caption collisions, including long synthetic Chinese and large signed values; retain 360/390px previews for actual visual inspection.
-- [ ] Run focused tests/checks and inspect retained frames. Commit after correcting any material layout issues.
+- [x] Write failing tests for before/during/after reveal/highlight/compare/annotate, cue-offset boundaries, missing targets and escaped user text. Identical frame inputs produce identical state/markup; comparisons retain zero baselines, waterfall values reconcile and trends show explicit units/time intervals.
+- [x] Implement tokens and layouts with one principal focus per stage, directly connected comparison differences, persistent object geometry and captions whose background disappears when absent. Every UI string uses the selected locale; default English, explicit Chinese choice.
+- [x] Render every template plus event intermediate frames using the pinned browser/font offline. Automatically reject missing font, out-of-frame text and caption collisions, including long synthetic Chinese and large signed values; retain 360/390px previews for actual visual inspection.
+- [x] Run focused tests/checks and inspect retained frames. Commit after correcting any material layout issues.
 
 ### Task 8: Stage compilation, verified cache and assembly
 
@@ -121,11 +121,11 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** `compileStages(project: ProductionProject): Stage[]` exports typed `Stage` with absolute-frame interval and animation/hold spans. `renderProduction(manifestFile: string, reviewFile: string, output: string, cache: string): Promise<BuildReport>` defines/exports `BuildReport`. Cache functions accept a typed content/version fingerprint and expose hit/miss reasons, not arbitrary path execution.
 
-- [ ] Write failing tests: stage intervals exactly cover scenes, multiple events inside one scene retain timing, changed stage/audio/subtitle/template/lock/tool settings invalidate keys; absent receipt, corrupt segment and interrupted temp write are misses.
-- [ ] Assert pending review rejects before any output/cache mutation, current approval is rechecked before assembly, a nonempty output rejects, and final creation cannot overwrite an existing file. Include changed-on-disk inputs between phases.
-- [ ] Implement browser-rendered deterministic animation spans, FFmpeg static holds and shared-timeline subtitles. Atomically publish only verified cache entries on the same volume; validate actual cached media before reuse.
-- [ ] Assemble validated stages, explicitly selected/normalized audio and chapters; verify duration/count/codecs/full decode. Record stage hits/misses, tools, input hashes, timings and failure state. Expose `studio render` with mandatory review and explicit destinations.
-- [ ] Run the production smoke and old render/review smoke offline; commit.
+- [x] Write failing tests: stage intervals exactly cover scenes, multiple events inside one scene retain timing, changed stage/audio/subtitle/template/lock/tool settings invalidate keys; absent receipt, corrupt segment and interrupted temp write are misses.
+- [x] Assert pending review rejects before any output/cache mutation, current approval is rechecked before assembly, a nonempty output rejects, and final creation cannot overwrite an existing file. Include changed-on-disk inputs between phases.
+- [x] Implement browser-rendered deterministic animation spans, FFmpeg static holds and shared-timeline subtitles. Atomically publish only verified cache entries on the same volume; validate actual cached media before reuse.
+- [x] Assemble validated stages, explicitly selected/normalized audio and chapters; verify duration/count/codecs/full decode. Record stage hits/misses, tools, input hashes, timings and failure state. Expose `studio render` with mandatory review and explicit destinations.
+- [x] Run the production smoke and old render/review smoke offline; commit.
 
 ### Task 9: Fixed comparison sample and release checks
 
@@ -166,3 +166,4 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 - [ ] Confirm all four PRs are merged and primary main is clean/current; run merged-main checks and confirm task-related CI. Deployment is absent unless separately requested.
 - [ ] Check all original artifacts/authorizations retained, adapted-project reports honest, and visual/sample artifacts linked from the local workspace index. List pending human editorial/listening work explicitly.
 - [ ] Remove only completed task remote/local branches and worktrees after merged commits and unique files are verified. Report PRs, commits, actual tests and sample paths; never label pending historical projects as finished new films.
+

@@ -1,6 +1,6 @@
 # Production project tools
 
-The v2 tools initialize external projects, import local assets, inspect readiness, export timelines and verify media. Multi-scene rendering and v2 editorial approval are separate planned work; these tools do not grant permission to render a manuscript.
+The v2 tools initialize external projects, import local assets, inspect readiness, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -47,3 +47,4 @@ Verification records tool versions, media SHA-256, expectations and individual r
 CLI exit codes: 0 success; 2 invalid arguments/project/path or existing output; 3 unavailable/failed tools; 4 failed media expectations. JSON diagnostics go to stdout for doctor and stderr for command errors. Use `npm --silent run studio -- ...` when consuming stdout programmatically.
 
 `npm run tools:smoke -- /absolute/new-smoke-dir` exercises real synthetic media, timeline exports, negative specifications, tool failure and report overwrite refusal offline. It synthesizes a test tone, not narration.
+

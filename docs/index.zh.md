@@ -16,11 +16,11 @@ npm run smoke -- /absolute/external/empty/smoke
 
 固定演示使用虚构数据，默认无声。执行 `npm run demo -- /absolute/external/empty/demo`，会以 1280×720、30 fps 导出 900 帧。输出包括 MP4、字幕、保留帧和渲染记录。命令末尾可以显式追加已获许可的本地音频路径；项目没有内置配音服务。
 
-真实内容应先走 [文稿审阅](manuscript-review.md)。导入润色稿不会批准渲染，只有当前有效、绑定完整项目哈希的人类批准才能通过。现有 v1 审阅只覆盖标题与三段短字幕；多场景制作流程尚未交付。
+导入润色稿不会批准渲染，只有当前有效、绑定完整项目哈希的人类批准才能通过。[v1 文稿审阅](manuscript-review.md) 覆盖标题与三段短字幕，[v2 制作流程](production-rendering.md) 支持完整文稿和多场景项目。
 
 [数据目录](data-layout.md) 说明素材与输出归属，[项目结构](repository-structure.md) 解释配置和文档的存放方式。自动检查验证结构，不能证明事实正确或已经人工听校。已完成的检查见带日期的 [验证记录](validation.md)。
 
-[v2 制作工具](production-tools.md) 已支持项目初始化、不可变素材导入、预检、时间轴导出和媒体校验，尚未提供多场景渲染或文稿批准。
+[v2 制作工具](production-tools.md) 支持项目初始化、不可变素材导入、预检、时间轴导出和媒体校验。审核与渲染命令参见[制作指南](production-rendering.md)。
 
 ## 构建本文档
 
@@ -32,3 +32,6 @@ python -m mkdocs build --strict --site-dir /absolute/external/docs-build
 ```
 
 语言菜单可以切换英文与简体中文。页面使用本地主题资源和系统字体。CI 只检查构建，尚未配置文档部署。
+
+六类模板与多场景视频参见[审核后生成视频](production-rendering.md)。
+
