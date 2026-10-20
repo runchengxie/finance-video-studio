@@ -32,6 +32,8 @@ plugins:
             Manuscript review: 文稿审阅
             Production tools: 制作工具
             Production rendering: 视频生成
+            Local voice: 本机配音
+            Historical adoption: 历史迁移
             Data layout: 数据目录
             Repository structure: 项目结构
             Third-party notices: 第三方说明
@@ -41,8 +43,9 @@ nav:
   - Manuscript review: manuscript-review.md
   - Production tools: production-tools.md
   - Production rendering: production-rendering.md
+  - Local voice: local-voice.md
+  - Historical adoption: historical-adoption.md
   - Data layout: data-layout.md
   - Repository structure: repository-structure.md
   - Third-party notices: third-party.md
   - Validation: validation.md
-

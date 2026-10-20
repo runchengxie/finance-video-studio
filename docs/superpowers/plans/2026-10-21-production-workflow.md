@@ -133,10 +133,10 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** `renderProductionDemo(output: string, variant: 'improved'|'legacy-comparison'): Promise<void>` only loads source-pinned complete fixtures. CLI accepts output and a closed fixture variant, not arbitrary manifest/audio input. Fixture runtime audio is generated from a pinned tone recipe until the optional local-voice task.
 
-- [ ] Pin the complete 36-second fictional sample and both comparison variants with identical values, output dimensions, cue timings and audio. Include comparison, waterfall, process and trend; use focused fixtures to cover metric/evidence templates.
-- [ ] Test modified fixture content, arbitrary project path/audio and fictional-only bypass attempts reject. Verify fixed demo access cannot reach the generic unreviewed renderer.
-- [ ] Produce both videos, intermediate/representative frames, contact sheets, phone previews and cold/warm-cache timing reports outside Git. Inspect complete clips and frames; record observed readability/focus changes and actual performance without claiming listening or factual review.
-- [ ] Add the short production smoke to offline CI. Run check/test, old smoke/review example, production tests, strict bilingual docs build; review/merge PR C against current target and clean completed branches/worktrees.
+- [x] Pin the complete 36-second fictional sample and both comparison variants with identical values, output dimensions, cue timings and audio. Include comparison, waterfall, process and trend; use focused fixtures to cover metric/evidence templates.
+- [x] Test modified fixture content, arbitrary project path/audio and fictional-only bypass attempts reject. Verify fixed demo access cannot reach the generic unreviewed renderer.
+- [x] Produce both videos, intermediate/representative frames, contact sheets, phone previews and cold/warm-cache timing reports outside Git. Inspect complete clips and frames; record observed readability/focus changes and actual performance without claiming listening or factual review.
+- [x] Add the short production smoke to offline CI. Run check/test, old smoke/review example, production tests, strict bilingual docs build; review/merge PR C against current target and clean completed branches/worktrees.
 
 ## PR D — Voice and historical adoption
 
@@ -146,9 +146,9 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** `generateVoice(manifestFile: string, options: {voice: string; output: string; executeLocal: boolean}): Promise<VoiceProposal>` defines/exports `VoiceProposal` with measured clips, proposed cues and review-required status. Unsupported OS or unavailable selected voice reports failure; no automatic fallback provider.
 
-- [ ] Write failing tests that omitted explicit execution, non-Windows execution and unavailable voices never synthesize or mutate inputs. Test existing output refusal and that audio changes cannot retain approval or old cue timing silently.
-- [ ] Implement locally selected SAPI voice execution in a hidden process with short UTF-8 text clips, measured duration and proposed frame-aligned cues. New audio/timeline needs a new editorial snapshot; do not manufacture approval or claim human pronunciation review.
-- [ ] Explicitly generate fixed synthetic narration for the comparison sample on this machine, bind the same audio to both variants and inspect the produced audio/video. Keep CI tone-only and offline; document synthetic narration and remaining human listening requirements. Run platform-appropriate tests and commit.
+- [x] Write failing tests that omitted explicit execution, non-Windows execution and unavailable voices never synthesize or mutate inputs. Test existing output refusal and that audio changes cannot retain approval or old cue timing silently.
+- [x] Implement locally selected SAPI voice execution in a hidden process with short UTF-8 text clips, measured duration and proposed frame-aligned cues. New audio/timeline needs a new editorial snapshot; do not manufacture approval or claim human pronunciation review.
+- [x] Explicitly generate fixed synthetic narration for the comparison sample on this machine, bind the same audio to both variants and inspect the produced audio/video. Keep CI tone-only and offline; document synthetic narration and remaining human listening requirements. Run platform-appropriate tests and commit.
 
 ### Task 11: Historical adapters and adoption receipts
 
@@ -156,14 +156,15 @@ Contract limits: JSON input at most 16 MiB; IDs match `[A-Za-z0-9][A-Za-z0-9_-]{
 
 **Interfaces:** `adaptHistorical(kind: 'fixed-sample'|'full-timeline'|'external-audio', sourceDirectory: string, destination: string): Promise<AdaptationReport>` defines/exports `AdaptationReport` with copied-input hashes, mappings, unsupported features and pending review path. Only explicit known formats are accepted.
 
-- [ ] Write failing tests for all three synthetic legacy formats; original bytes remain unchanged, paths and input copies match hashes, wrong format/missing input fails, unknown template mapping is reported and blocks readiness, and historical authorization cannot become a v2 approval.
-- [ ] Implement adapters using the six templates only when semantics match. Reports include textual/data/timing/visual differences and unresolved mapping IDs; never guess missing facts or apply company-specific typo replacements globally.
-- [ ] Adapt the known local sample, full film and external-audio project into new task directories. Copy selected Downloads audio into stable new inputs with provenance while leaving old authorization and outputs unchanged. Validate all hash mappings and produce pending reviews; request exact editorial approval only if historical rerendering is subsequently requested.
-- [ ] Update bilingual migration/production guides and local project catalog/navigation. Run full tests, offline acceptance, strict docs build and independent review; merge PR D after applicable combined checks.
+- [x] Write failing tests for all three synthetic legacy formats; original bytes remain unchanged, paths and input copies match hashes, wrong format/missing input fails, unknown template mapping is reported and blocks readiness, and historical authorization cannot become a v2 approval.
+- [x] Implement adapters using the six templates only when semantics match. Reports include textual/data/timing/visual differences and unresolved mapping IDs; never guess missing facts or apply company-specific typo replacements globally.
+- [x] Adapt the known local sample, full film and external-audio project into new task directories. Copy selected Downloads audio into stable new inputs with provenance while leaving old authorization and outputs unchanged. Validate all hash mappings and produce pending reviews; request exact editorial approval only if historical rerendering is subsequently requested.
+- [x] Update bilingual migration/production guides and local project catalog/navigation. Run full tests, offline acceptance, strict docs build and independent review; merge PR D after applicable combined checks.
 
 ## Final verification and handoff
 
 - [ ] Confirm all four PRs are merged and primary main is clean/current; run merged-main checks and confirm task-related CI. Deployment is absent unless separately requested.
 - [ ] Check all original artifacts/authorizations retained, adapted-project reports honest, and visual/sample artifacts linked from the local workspace index. List pending human editorial/listening work explicitly.
 - [ ] Remove only completed task remote/local branches and worktrees after merged commits and unique files are verified. Report PRs, commits, actual tests and sample paths; never label pending historical projects as finished new films.
+
 
