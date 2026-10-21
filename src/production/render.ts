@@ -92,3 +92,20 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
 }
 
 
+
+export async function renderBroadcastDemo(output:string):Promise<void>{
+ const {broadcastDemoFixture}=await import('./demo.js');const project=await broadcastDemoFixture();
+ const {assertExternal}=await import('./paths.js');await assertExternal(output);await mkdir(output);await mkdir(path.join(output,'inputs'));
+ const pageFile=path.join(output,'inputs/page.png'),bgFile=path.join(output,'inputs/backdrop.mp4');
+ const session=await capturePage();
+ try{
+  await session.page.setViewportSize({width:600,height:600});
+  await session.page.setContent(`<style>${session.font}body{margin:0;padding:50px;background:#f8f8f3;color:#18232c;font:32px "Noto Sans SC"}h1{font-size:40px}p{border-top:2px solid #aaa;padding-top:25px}</style><h1>FICTIONAL DOCUMENT</h1><p>Sample A · 1.00%</p><p>Sample B · 0.25%</p><p>Generated example<br>2026-01-01</p>`);
+  await session.page.evaluate(()=>document.fonts.ready);await session.page.screenshot({path:pageFile});
+ }finally{await session.close();}
+ const bg=mediaTool('ffmpeg',['-v','error','-f','lavfi','-i','testsrc2=s=1920x1080:r=30:d=2','-c:v','libx264','-preset','veryfast','-crf','25','-pix_fmt','yuv420p',bgFile]);if(!bg.ok)throw new Error('synthetic_background_failed');
+ for(const input of project.inputs)input.sha256=await hashFile(path.join(output,input.path));
+ const manifest=path.join(output,'project.json');await writeJson(manifest,project);const snapshot=await snapshotProject(manifest);
+ const authorize=async()=>{await broadcastDemoFixture();if(hash(snapshot)!==hash(await snapshotProject(manifest)))throw new Error('fixed_demo_modified');};
+ for(const name of ['build','warm-build'])await renderBuild(manifest,snapshot,path.join(output,name),path.join(output,'cache'),authorize);
+}

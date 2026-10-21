@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 2,
+  "id": "fictional-broadcast",
+  "title": "Fictional evidence and comparisons",
+  "contentLanguage": "en",
+  "fictional": true,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationFrames": 360,
+  "inputs": [
+    {
+      "id": "page",
+      "path": "inputs/page.png",
+      "mediaType": "image",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "Fixed synthetic recipe",
+      "rights": "Original"
+    },
+    {
+      "id": "backdrop",
+      "path": "inputs/backdrop.mp4",
+      "mediaType": "video",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "provenance": "Fixed synthetic recipe",
+      "rights": "Original"
+    }
+  ],
+  "sources": [
+    {
+      "id": "synthetic",
+      "citation": "Fictional document · 2026-01-01",
+      "inputId": "page"
+    }
+  ],
+  "manuscript": [
+    {
+      "id": "body",
+      "text": "All values and documents in this twelve-second example are fictional.",
+      "sourceIds": [
+        "synthetic"
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "presentation": {
+        "layout": "evidence",
+        "chapterLabel": "Evidence",
+        "sidebar": [
+          {
+            "label": "Same fee scope",
+            "cueId": "c2"
+          }
+        ],
+        "evidencePanels": [
+          {
+            "inputId": "page",
+            "sourceId": "synthetic",
+            "label": "Fictional fee sheet",
+            "pageLabel": "1",
+            "highlight": {
+              "x": 0.1,
+              "y": 0.4,
+              "width": 0.8,
+              "height": 0.2,
+              "cueId": "c2"
+            }
+          }
+        ]
+      },
+      "id": "fees",
+      "from": 0,
+      "durationFrames": 120,
+      "title": "Compare two fictional annual rates",
+      "chapterId": "evidence",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "comparison",
+      "data": {
+        "unit": "%",
+        "items": [
+          {
+            "id": "a",
+            "label": "Sample A",
+            "value": 1
+          },
+          {
+            "id": "b",
+            "label": "Sample B",
+            "value": 0.25
+          }
+        ]
+      }
+    },
+    {
+      "presentation": {
+        "layout": "wide-chart",
+        "chapterLabel": "Comparison"
+      },
+      "id": "returns",
+      "from": 120,
+      "durationFrames": 120,
+      "title": "Positive and negative values share zero",
+      "chapterId": "comparison",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "signed-comparison",
+      "data": {
+        "unit": "%",
+        "items": [
+          {
+            "id": "a",
+            "label": "Sample A",
+            "value": -10
+          },
+          {
+            "id": "b",
+            "label": "Sample B",
+            "value": 20
+          }
+        ]
+      }
+    },
+    {
+      "presentation": {
+        "layout": "explanation",
+        "chapterLabel": "Scope"
+      },
+      "id": "scope",
+      "from": 240,
+      "durationFrames": 120,
+      "title": "Keep assumptions beside the figures",
+      "chapterId": "scope",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "process",
+      "data": {
+        "items": [
+          {
+            "id": "a",
+            "label": "Identify scope",
+            "detail": "Use the same period and units."
+          },
+          {
+            "id": "b",
+            "label": "Review evidence",
+            "detail": "Check the original source before rendering."
+          }
+        ]
+      }
+    }
+  ],
+  "cues": [
+    {
+      "id": "c1",
+      "text": "This document and its values are fictional.",
+      "startFrame": 0,
+      "endFrame": 60
+    },
+    {
+      "id": "c2",
+      "text": "Compare rates on the same basis.",
+      "startFrame": 60,
+      "endFrame": 120
+    },
+    {
+      "id": "c3",
+      "text": "A shared zero keeps gains and losses comparable.",
+      "startFrame": 120,
+      "endFrame": 240
+    },
+    {
+      "id": "c4",
+      "text": "Preserve the evidence and its limitations.",
+      "startFrame": 240,
+      "endFrame": 360
+    }
+  ],
+  "events": [],
+  "render": {
+    "theme": "broadcast-v1",
+    "broadcast": {
+      "programName": "EXAMPLE DESK",
+      "backgroundVideoId": "backdrop"
+    },
+    "crf": 20,
+    "audioId": null,
+    "normalization": null
+  }
+}

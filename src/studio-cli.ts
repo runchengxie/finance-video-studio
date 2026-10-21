@@ -8,7 +8,7 @@ import path from 'node:path';
 import {snapshotProject} from './production/snapshot.js';
 import {createProductionReview,importProductionPolish,approveProductionReview,productionReviewStatus,type ProductionApprovalOptions} from './production/review.js';
 import {loadProductionReview,saveProductionReview} from './production/review-io.js';
-import {renderProduction,renderVoicedProductionDemo} from './production/render.js';
+import {renderProduction,renderVoicedProductionDemo,renderBroadcastDemo} from './production/render.js';
 import {generateVoice,localVoices} from './production/voice.js';
 import {adaptHistorical} from './production/adapt.js';
 
@@ -16,6 +16,7 @@ const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
 try{
  switch(command){
+  case 'broadcast-demo':if(args.length!==1)throw new Error('fixed_demo_output_only');await renderBroadcastDemo(required(0));break;
   case 'adapt':if(args.length!==3||!['fixed-sample','full-timeline','external-audio'].includes(required(0)))throw new Error('invalid_adaptation_arguments');console.log(JSON.stringify(await adaptHistorical(required(0) as 'fixed-sample'|'full-timeline'|'external-audio',required(1),required(2))));break;
   case 'voices':if(args.length)throw new Error('invalid_arguments');console.log(JSON.stringify(localVoices()));break;
   case 'voice':if(args.length!==4||args[3]!=='--execute-local')throw new Error('explicit_local_execution_required');console.log(JSON.stringify(await generateVoice(required(0),{voice:required(1),output:required(2),executeLocal:true})));break;

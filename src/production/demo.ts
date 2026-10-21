@@ -10,3 +10,8 @@ export async function productionDemoFixture(variant:DemoVariant):Promise<Product
  return assertProductionFixture(JSON.parse(await readFile(new URL('../../examples/production/film.json',import.meta.url),'utf8')));
 }
 export {renderProductionDemo} from './render.js';
+
+export function assertBroadcastFixture(value:unknown):ProductionProject {
+ const p=parseProject(value);if(hash(p)!=='e36965924df958cabe89b23166488ab776b0da877649e86bf44c9275e5c5db0b')throw new Error('fixed_synthetic_content_changed');return p;
+}
+export async function broadcastDemoFixture():Promise<ProductionProject>{return assertBroadcastFixture(JSON.parse(await readFile(new URL('../../examples/production/broadcast.json',import.meta.url),'utf8')));}

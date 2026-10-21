@@ -42,3 +42,5 @@ node --import tsx test/production-visuals.ts /absolute/new-template-inspection
 ```
 
 该命令保留六类模板、动画中间帧及 360／390 像素预览。缩图用于发现信息过密的问题；自动检查不能证明手机端易读、事实正确或配音自然。
+
+栏目包装参见[栏目模板](broadcast-template.md)。

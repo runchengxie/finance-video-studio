@@ -42,3 +42,5 @@ node --import tsx test/production-visuals.ts /absolute/new-template-inspection
 ```
 
 This retains all six templates, intermediate frames and 360/390px previews. Small previews help identify density problems; automated layout checks do not establish mobile legibility, factual correctness or voice quality.
+
+See the [broadcast template](broadcast-template.md) for local evidence panels and continuous backgrounds.

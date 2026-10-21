@@ -57,6 +57,7 @@ plugins:
             Editorial review brief: 稿件审阅提示词
             Production tools: 制作工具
             Production rendering: 视频生成
+            Broadcast template: 栏目模板
             Local voice: 本机配音
             Historical adoption: 历史迁移
             Data layout: 数据目录
@@ -70,6 +71,7 @@ nav:
   - Editorial review brief: editorial-review.md
   - Production tools: production-tools.md
   - Production rendering: production-rendering.md
+  - Broadcast template: broadcast-template.md
   - Local voice: local-voice.md
   - Historical adoption: historical-adoption.md
   - Data layout: data-layout.md
