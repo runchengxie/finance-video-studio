@@ -1,3 +1,4 @@
+import {broadcastSceneHtml} from './broadcast.js';
 import {type ProductionProject,type Scene} from './manifest.js';
 import {sceneState,type SceneState} from './scene-state.js';
 import {designTokens as t} from './design.js';
@@ -36,7 +37,8 @@ function chart(scene:Scene,state:SceneState,lang:ProductionProject['contentLangu
   case 'evidence':return group(scene.data.id,text(0,60,l.evidence,26,`fill="${t.accent}"`)+wrap(scene.data.text,58).map((s,i)=>text(0,150+i*48,s,34)).join(''));
  }
 }
-export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved'):string {
+export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
+ if(project.render.theme==='broadcast-v1')return broadcastSceneHtml(project,sceneId,frame,fontCss,visualAssets);
  const state=sceneState(project,sceneId,frame),scene=project.scenes.find(s=>s.id===sceneId)!,l=labels[project.contentLanguage];
  const sources=[...new Set([...scene.sourceIds,...(scene.template==='evidence'?[scene.data.sourceId]:[])])].map(id=>project.sources.find(s=>s.id===id)!.citation).join(' · ');
  if(variant==='legacy-comparison'&&scene.template==='comparison'){
