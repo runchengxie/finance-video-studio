@@ -1,5 +1,8 @@
 name: validate
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -27,3 +30,26 @@ jobs:
         run: |
           sudo unshare --net -- runuser -u "$(id -un)" -- env HOME="$HOME" PATH="$PATH" bash -c 'test -z "$(ip route)" && npm run check && npm test && npm run smoke -- "$1" && npm run review:example -- "$2" && npm run tools:smoke -- "$3" && npm run production:example -- "$4" improved' bash "$RUNNER_TEMP/finance-smoke" "$RUNNER_TEMP/review-example" "$RUNNER_TEMP/production-tools" "$RUNNER_TEMP/production-film"
 
+      - name: Upload validated documentation
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: ${{ runner.temp }}/finance-docs
+  deploy-pages:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: offline-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy validated documentation
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

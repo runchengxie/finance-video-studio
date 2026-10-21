@@ -31,7 +31,6 @@ python -m pip install --require-hashes -r docs/requirements.txt
 python -m mkdocs build --strict --site-dir /absolute/external/docs-build
 ```
 
-The language selector switches between English and Simplified Chinese. Documentation uses local theme assets and system fonts. CI builds the site; no documentation deployment is configured.
+The language selector switches between English and Simplified Chinese. Documentation uses local theme assets and system fonts. After the full CI validation succeeds on main, the same built site is published to [GitHub Pages](https://runchengxie.github.io/finance-video-studio/). Pull requests only validate. To redeploy, run the validate workflow manually on main. Only the deployment job has Pages and OIDC write permissions; videos and external project data are not published.
 
 For six templates and multi-scene videos, follow [reviewed production rendering](production-rendering.md).
-

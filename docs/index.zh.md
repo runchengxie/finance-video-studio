@@ -31,7 +31,6 @@ python -m pip install --require-hashes -r docs/requirements.txt
 python -m mkdocs build --strict --site-dir /absolute/external/docs-build
 ```
 
-语言菜单可以切换英文与简体中文。页面使用本地主题资源和系统字体。CI 只检查构建，尚未配置文档部署。
+语言菜单可以切换英文与简体中文。页面使用本地主题资源和系统字体。main 分支的完整 CI 验证通过后，同一次构建的文档会发布到 [GitHub Pages](https://runchengxie.github.io/finance-video-studio/zh/)。PR 只执行验证。需要重新部署时，可在 main 上手动运行 validate 工作流。只有部署作业拥有 Pages 和 OIDC 写权限，视频和外部项目资料不会发布。
 
 六类模板与多场景视频参见[审核后生成视频](production-rendering.md)。
-
