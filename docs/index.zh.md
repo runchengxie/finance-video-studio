@@ -1,6 +1,6 @@
 # 财经视频制作工具
 
-在本机制作可重现的财经解释视频，并在渲染前明确审阅文稿。公开代码只包含原创实现和虚构示例；真实研究、稿件、音频及输出保存在外部项目目录。
+在本机制作可重现的财经解释视频，并在渲染前由人工审阅文稿。公开代码只包含原创实现和虚构示例；真实研究、稿件、音频及输出保存在外部项目目录。
 
 ## 开始使用
 
@@ -16,11 +16,11 @@ npm run smoke -- /absolute/external/empty/smoke
 
 固定演示使用虚构数据，默认无声。执行 `npm run demo -- /absolute/external/empty/demo`，会以 1280×720、30 fps 导出 900 帧。输出包括 MP4、字幕、保留帧和渲染记录。命令末尾可以显式追加已获许可的本地音频路径；项目没有内置配音服务。
 
-导入润色稿不会批准渲染，只有当前有效、绑定完整项目哈希的人类批准才能通过。[v1 文稿审阅](manuscript-review.md) 覆盖标题与三段短字幕，[v2 制作流程](production-rendering.md) 支持完整文稿和多场景项目。
+导入润色稿不会批准渲染，渲染前必须取得人工明确批准，且批准仍在有效期内，与完整项目的当前哈希一致。[v1 文稿审阅](manuscript-review.md) 覆盖标题与三段短字幕，[v2 制作流程](production-rendering.md) 支持完整文稿和多场景项目。
 
 [数据目录](data-layout.md) 说明素材与输出归属，[项目结构](repository-structure.md) 解释配置和文档的存放方式。自动检查验证结构，不能证明事实正确或已经人工听校。已完成的检查见带日期的 [验证记录](validation.md)。
 
-[v2 制作工具](production-tools.md) 支持项目初始化、不可变素材导入、预检、时间轴导出和媒体校验。审核与渲染命令参见[制作指南](production-rendering.md)。
+[v2 制作工具](production-tools.md) 可以创建项目、保留原件并导入素材，还能检查准备情况、导出时间轴和校验媒体。审核与渲染命令参见[制作指南](production-rendering.md)。
 
 ## 构建本文档
 
@@ -31,6 +31,6 @@ python -m pip install --require-hashes -r docs/requirements.txt
 python -m mkdocs build --strict --site-dir /absolute/external/docs-build
 ```
 
-语言菜单可以切换英文与简体中文。页面使用本地主题资源和系统字体。main 分支的完整 CI 验证通过后，同一次构建的文档会发布到 [GitHub Pages](https://runchengxie.github.io/finance-video-studio/zh/)。PR 只执行验证。需要重新部署时，可在 main 上手动运行 validate 工作流。只有部署作业拥有 Pages 和 OIDC 写权限，视频和外部项目资料不会发布。
+语言菜单可以切换英文与简体中文。页面默认跟随系统的明暗设置，右上角的主题按钮可切换自动、浅色和深色模式，并记住你的选择。页面使用本地主题资源和系统字体。main 分支的完整 CI 验证通过后，同一次构建的文档会发布到 [GitHub Pages](https://runchengxie.github.io/finance-video-studio/zh/)。PR 只执行验证。需要重新部署时，可在 main 上手动运行 validate 工作流。只有部署作业拥有 Pages 和 OIDC 写权限，视频和外部项目资料不会发布。
 
 六类模板与多场景视频参见[审核后生成视频](production-rendering.md)。

@@ -4,6 +4,21 @@ repo_url: https://github.com/runchengxie/finance-video-studio
 theme:
   name: material
   font: false
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
   features:
     - navigation.sections
     - navigation.top
@@ -27,8 +42,17 @@ plugins:
           name: 简体中文
           build: true
           site_name: 财经视频制作工具
+          theme:
+            palette:
+              - toggle:
+                  name: 切换到浅色模式
+              - toggle:
+                  name: 切换到深色模式
+              - toggle:
+                  name: 跟随系统设置
           nav_translations:
             Home: 首页
+            Demo and development: 示例与开发
             Manuscript review: 文稿审阅
             Editorial review brief: 稿件审阅提示词
             Production tools: 制作工具
@@ -41,6 +65,7 @@ plugins:
             Validation: 验证记录
 nav:
   - Home: index.md
+  - Demo and development: demo.md
   - Manuscript review: manuscript-review.md
   - Editorial review brief: editorial-review.md
   - Production tools: production-tools.md

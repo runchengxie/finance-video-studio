@@ -2,7 +2,7 @@
 
 这套流程记录本地审阅状态，不提供模型，不自动核验事实，也不会发布视频。现有 v1 覆盖标题和三段短字幕，每段最长 45 字；完整长稿尚不能直接进入此接口。
 
-写稿和改稿前先使用[稿件审阅提示词](editorial-review.md)。本页说明v1三段短字幕接口，完整文稿使用[v2制作审核](production-rendering.md)，两者都遵循同一套编辑要求。
+写稿和改稿前先使用[稿件审阅提示词](editorial-review.md)。本页说明 v1 的三段短字幕接口，完整文稿使用 [v2 制作审核](production-rendering.md)，两者都遵循同一套编辑要求。
 
 先核对来源和事实，再准备三点稿件、润色、检查事实差异，随后由人明确批准。第一段从第零帧开始。真实内容可以使用 `fictional: false`，这个字段不会证明内容已经核验。
 
@@ -14,7 +14,7 @@ human-writing 是可选的本机技能，代码仓库不包含它的第三方指
 
 ## 默认手工流程
 
-文稿、来源、音频、审阅记录和个人配置保存在源码之外。先准备严格的项目 JSON，再初始化待处理记录。
+文稿、来源、音频、审阅记录和个人配置保存在源码之外。先准备符合项目格式要求的 JSON，再初始化待处理记录。
 
 ```sh
 npm run review -- init /absolute/draft.json /absolute/01-pending.json
@@ -38,7 +38,7 @@ npm run review -- status /absolute/02-imported.json
 
 检查器逐字段比较数字、常见单位、日期、引用标识与保守限定词。它可能误报或漏报，不能理解完整语义，也不能判断来源质量。即使数字未变，因果或主语仍可能变化，因此仍需人工检查完整稿件、计算和引语语境。
 
-人工核对后，在外部批准选项 JSON 中填写非空 `reviewer`、`factReviewNotes` 和未来的 UTC ISO 时间 `expiresAt`。存在事实词变化时，还要提供 `differenceReviewNotes` 说明处理结果。程序记录操作者的确认，不判断说明是否足够。
+人工核对后，在外部批准选项 JSON 中填写非空 `reviewer`、`factReviewNotes` 和晚于当前时间、采用 UTC ISO 格式的到期时间 `expiresAt`。存在数字、单位、日期、引用或限定词变化时，还要提供 `differenceReviewNotes` 说明处理结果。程序记录操作者的确认，不判断说明是否足够。
 
 ```sh
 npm run review -- approve /absolute/02-imported.json /absolute/approval-options.json /absolute/03-approved.json --confirm-review
@@ -46,7 +46,7 @@ npm run review -- status /absolute/03-approved.json
 npm run render -- /absolute/polished-project.json /absolute/03-approved.json /absolute/empty-video-output
 ```
 
-批准绑定完整润色项目及审阅内容的哈希。修改原稿、策略、审计说明或项目，或者批准到期，都会使它失效。这是本地工作流记录，不是抵御操作者伪造的密码学身份系统。
+批准绑定完整润色项目及审阅内容的哈希。修改原稿、策略、审计说明或项目，或者批准到期，都会使它失效。这份记录用于管理本机审阅流程，无法防止操作者自行伪造身份或批准记录。
 
 命令末尾可以追加已许可的本地音频，以及可选 CSV。CSV 在批准校验前载入，必须与被批准项目一致。无声渲染应按无声作品描述。
 
@@ -71,4 +71,4 @@ npm run review:example -- /absolute/empty/review-example
 
 示例只接受输出目录，用固定虚构数据模拟待处理、数值变化与明确的测试批准，再渲染并解码 90 帧。它不接受真实稿件，不代表人类编辑批准，也不声称调用了真实 human-writing。
 
-固定 demo 有源码锁定的内容哈希，修改数据后不能继续走未审阅路径。没有通用的跳过审阅参数。CI 在无网络环境中运行合成状态测试、审稿示例和视频烟测。
+固定 demo 有源码锁定的内容哈希，修改数据后不能继续走未审阅路径。没有通用的跳过审阅参数。CI 在无网络环境中运行合成状态测试、审稿示例和视频渲染与解码的基本验证。

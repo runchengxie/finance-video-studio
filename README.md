@@ -1,39 +1,48 @@
 # Finance Video Studio
 
-Deterministic TypeScript finance explainer videos with a local manuscript-review gate and synthetic examples. MIT applies to original code only.
+[中文介绍](README.zh.md) · [English docs](https://runchengxie.github.io/finance-video-studio/) · [中文文档](https://runchengxie.github.io/finance-video-studio/zh/)
 
-Start with the [manuscript review workflow](docs/manuscript-review.md) for real drafts. Human-writing is an optional locally installed skill, not a bundled AI service. Default state is pending manual work; importing polish never approves it. Rendering arbitrary projects requires explicit current human approval bound to the manuscript/project hash.
+Turn a finance script, charts and local audio into a video on your computer. Start with the included fictional example before preparing your own material.
 
-Read the [English documentation](https://runchengxie.github.io/finance-video-studio/) or [简体中文文档](https://runchengxie.github.io/finance-video-studio/zh/). The MkDocs site has a language selector; build instructions are in the documentation home. Configuration files remain at the repository root; see [repository structure](docs/repository-structure.md).
+The tool creates charts and scenes, adds subtitles and audio, and exports an MP4. Your own scripts need explicit human review before rendering. The software records the review; you still need to check facts and listen to the audio yourself.
 
-Apply the [editorial review brief](docs/editorial-review.md) when writing or revising manuscripts. It checks the question's premises and evidence scope before prose revision, with dated sources and useful specialist objections. The [Chinese prompt](docs/editorial-review.zh.md) records the Chinese writing requirements. This remains an operator/agent task rather than an automatic model approval.
+## Try the first example
 
-## Run
-
-Requires Node 24, npm, and FFmpeg/ffprobe with libx264 on PATH. Install dependencies with `npm ci --ignore-scripts`, then `npx --no-install playwright install chromium` (Linux may need `--with-deps`). Installation needs internet; tests and rendering do not. The lockfile pins dependencies, browser revision and the OFL Chinese font package.
+Install Node.js 24 or newer and FFmpeg with ffprobe and libx264 support. Both FFmpeg tools must be available in your terminal. Run these commands from the project folder:
 
 ```sh
-npm run check
-npm test
-npm run smoke -- /absolute/external/empty/smoke
-npm run demo -- /absolute/external/empty/demo
-npm run review:example -- /absolute/external/empty/review-example
+npm ci --ignore-scripts
+npx --no-install playwright install chromium
 ```
 
-Windows example output path: `$env:TEMP/finance-demo-unique`. Output paths must be absolute, empty and outside this checkout. For permanent output, resolve your machine's configured data root and use its `finance-video-studio` directory. No machine-specific path is embedded in the code.
+Installation needs internet access. Video rendering runs locally.
 
-See [local data layout](docs/data-layout.md) for organizing historical experiments, task runs and migration records without mixing private materials into this repository.
+On Windows PowerShell, run:
 
-The fixed demo is 900 integer frames at 30 fps, 1280×720, approximately 30 seconds. It contains **fictional data and three Chinese explanatory points**. Default output is **silent, not a finished narrated video**. Outputs include H.264/yuv420p MP4, SRT, individual PNG frames and a manifest with keyframe hashes. To add your own licensed local audio, append its path after the output directory. Audio is encoded as AAC, padded or trimmed to the video duration. No TTS or remote media service is used. Arbitrary JSON/CSV content uses the reviewed render command documented above. The fixed demo does not accept arbitrary project files or CSV overrides.
+```powershell
+npm run demo -- "$env:TEMP/finance-first-demo"
+```
 
-Set `chart` to `line` or `bar`; units are explicitly `USD million` or `%`. Input is strict JSON with finite nonnegative values, bounded label lengths and ordered, nonoverlapping caption intervals `[start,end)`. One displayed decimal uses Intl decimal half-expand rounding. Titles, labels and subtitles are escaped. Rendering rejects detected text overflow and missing loaded font faces. It blocks all browser network requests.
+On macOS or Linux, use `npm run demo -- /tmp/finance-first-demo`. The output folder must be new or empty and outside this repository. Choose another folder name to keep an earlier run.
 
-## Validation and limits
+The example produces a 30-second **silent video with fictional data**, subtitles and frame images. It does not generate narration. See the [demo guide](docs/demo.md) for output files, optional audio and troubleshooting.
 
-`npm run check` runs TypeScript and ESLint. Unit tests cover positive/negative schemas, CSV parity and rejected values, rounding/units, exclusive caption boundaries and HTML escaping. Smoke renders a real three-second video, checks Chinese font loading and layout at every frame, checks chart-color pixels on three keyframes, probes codec/dimensions/pixel format/fps/frame count/duration, then fully decodes with FFmpeg error escalation. Inspect retained PNGs for typography and content; automated pixel checks are intentionally structural checks, not a claim of editorial quality.
+## Use your own material
 
-CI provisions dependencies before executing checks inside a Linux network namespace without network access. After validation succeeds on main, CI publishes the built documentation to GitHub Pages; workflow_dispatch on main can redeploy it. Pull requests validate without publishing. The deployment job alone receives pages and OIDC write permissions. No secrets or video uploads are configured. Actions use fixed commit SHAs and timeouts; validation retains read-only permissions. The Ubuntu runner's FFmpeg/system libraries are not bit-for-bit pinned, so encoded byte identity across operating systems is not guaranteed. Browser, font and npm dependencies are locked. Rendering is currently sequential and prioritizes reproducibility over speed.
+Follow the [production guide](docs/production-rendering.md) to prepare a project and review its script before rendering. Keep real research, scripts, audio and generated files outside the code repository. The tool does not upload or publish videos.
 
-Only synthetic examples and original code belong in this public repository. See [third-party licenses](docs/third-party.md). Never add private scripts, research, vendor prices, credentials or unlicensed audio/video. MIT does not relicense dependencies or externally supplied media.
+## Where to go next
 
-The [v2 production renderer](docs/production-rendering.md) adds six templates, full editorial snapshots, cue-linked events, verified segment caches and fixed 36-second comparison examples. Run `npm run production:example -- /absolute/new-output improved` for the tone-based example.
+| I want to… | Read |
+| --- | --- |
+| Understand the workflow | [Documentation home](https://runchengxie.github.io/finance-video-studio/) |
+| Review a script | [Manuscript review](docs/manuscript-review.md) |
+| Import media and check a project | [Production tools](docs/production-tools.md) |
+| Create a video with several scenes | [Production rendering](docs/production-rendering.md) |
+| Try optional Windows voice synthesis | [Local voice](docs/local-voice.md) |
+| Organize project files | [Data layout](docs/data-layout.md) |
+| Develop or verify the code | [Demo and development guide](docs/demo.md) |
+
+The documentation supports English and Simplified Chinese, follows your system appearance, and offers a light/dark theme switch.
+
+MIT covers the original code. Dependencies and external media keep their own licenses; see [third-party notices](docs/third-party.md).
