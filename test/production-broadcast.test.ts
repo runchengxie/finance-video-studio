@@ -45,3 +45,34 @@ test('browser refuses title/source/caption overflow instead of silently clipping
   }
  }finally{await session.close();}
 });
+
+test('broadcast preserves authored decimal precision and waits for the difference cue',()=>{
+ const p=broadcastFixture();p.cues=[{id:'cue-1',text:'Rate',startFrame:0,endFrame:45},{id:'cue-2',text:'Difference',startFrame:45,endFrame:90}];
+ const s=p.scenes[0]!;
+ const project=parseProject({...p,events:[],scenes:[{...s,data:{...s.data,precision:2,difference:{...s.data.difference,cueId:'cue-2'}}}]});
+ const early=sceneHtml(project,'cash',30,'','improved',assets),late=sceneHtml(project,'cash',60,'','improved',assets);
+ assert.ok(early.includes('30.00'));assert.ok(!early.includes('class="difference"'));assert.ok(late.includes('class="difference"'));
+});
+
+test('metric number and unit fit their line box at broadcast display size',async()=>{
+ const p=parseProject(broadcastFixture()),s=p.scenes[0]!;p.events=[];
+ p.scenes=[{...s,presentation:{layout:'explanation',chapterLabel:'Metric'},template:'metric',data:{id:'value',label:'Share',value:11.1,unit:'%',qualifier:'Same denominator'}}];
+ const session=await capturePage();try{await paint(session.page,session.font,p,'cash',30,'improved',assets);}finally{await session.close();}
+});
+
+test('difference can use percentage points independently of percentage rates',()=>{
+ const p=broadcastFixture(),s=p.scenes[0]!;
+ const project=parseProject({...p,events:[],scenes:[{...s,data:{unit:'% / year',precision:2,items:[{id:'a',label:'A',value:.2},{id:'b',label:'B',value:1.15}],difference:{leftId:'a',rightId:'b',label:'Annual rate difference',unit:'percentage points'}}}]});
+ assert.match(sceneHtml(project,'cash',30,'','improved',assets),/0.95<\/b> percentage points/);
+});
+
+test('evidence value list retains exact figures and cue reveals without implying separate bar totals',async()=>{
+ const base=broadcastFixture(),s=base.scenes[0]!;
+ const p=parseProject({...base,scenes:[{...s,presentation:{...s.presentation,chartStyle:'values'},data:{...s.data,precision:2}}]});
+ const session=await capturePage();try{await paint(session.page,session.font,p,'cash',30,'improved',assets);assert.equal(await session.page.locator('[data-bar]').count(),0);assert.equal(await session.page.locator('.value-number').first().textContent(),'30.00');}finally{await session.close();}
+});
+
+test('stacked evidence cards validate visible text and ignore display-none step labels',async()=>{
+ const p=parseProject(broadcastFixture()),s=p.scenes[0]!;p.events=[];p.scenes=[{...s,template:'process',data:{items:[{id:'a',label:'First',detail:'First detail'},{id:'b',label:'Second',detail:'Second detail'}]}}];
+ const session=await capturePage();try{await paint(session.page,session.font,p,'cash',30,'improved',assets);}finally{await session.close();}
+});

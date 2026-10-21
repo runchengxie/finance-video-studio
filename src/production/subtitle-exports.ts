@@ -14,7 +14,7 @@ export function assForScene(project:ProductionProject,sceneId:string):string {
 }
 export function chaptersMetadata(project:ProductionProject):string {
  const chapters=project.scenes.filter((s,i)=>s.chapterId&&(i===0||s.chapterId!==project.scenes[i-1]!.chapterId));
- return `;FFMETADATA1\ntitle=${metadataText(project.title)}\n`+chapters.map((s,i)=>`[CHAPTER]\nTIMEBASE=1/1000\nSTART=${Math.round(s.from/30*1000)}\nEND=${Math.round((chapters[i+1]?.from??project.durationFrames)/30*1000)}\ntitle=${metadataText(s.chapterId!)}\n`).join('');
+ return `;FFMETADATA1\ntitle=${metadataText(project.title)}\n`+chapters.map((s,i)=>`[CHAPTER]\nTIMEBASE=1/1000\nSTART=${Math.round(s.from/30*1000)}\nEND=${Math.round((chapters[i+1]?.from??project.durationFrames)/30*1000)}\ntitle=${metadataText(s.presentation?.chapterLabel??s.chapterId!)}\n`).join('');
 }
 export async function exportTimeline(project:ProductionProject,output:string):Promise<void> {
  validateTimeline(project);await assertExternal(output);await mkdir(path.dirname(output),{recursive:true});await mkdir(output);await mkdir(path.join(output,'scenes'));

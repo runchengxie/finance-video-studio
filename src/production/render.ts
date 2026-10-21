@@ -82,7 +82,7 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
   await authorize();
   if(hash(snapshot)!==hash(await snapshotProject(manifestFile)))throw new Error('inputs_changed_during_render');
   await exportTimeline(project,path.join(output,'timeline'));
-  const video=await assemble(project,manifestFile,segments,output),chapters=project.scenes.filter((s,i)=>s.chapterId&&s.chapterId!==project.scenes[i-1]?.chapterId).map((s,i,all)=>({title:s.chapterId!,startFrame:s.from,endFrame:all[i+1]?.from??project.durationFrames}));
+  const video=await assemble(project,manifestFile,segments,output),chapters=project.scenes.filter((s,i)=>s.chapterId&&s.chapterId!==project.scenes[i-1]?.chapterId).map((s,i,all)=>({title:s.presentation?.chapterLabel??s.chapterId!,startFrame:s.from,endFrame:all[i+1]?.from??project.durationFrames}));
   report.verification=await verifyMedia(video,mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:project.durationFrames,durationSeconds:project.durationFrames/30,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:!!project.render.audioId||!!project.render.backgroundAudioId,...(project.render.audioId||project.render.backgroundAudioId?{codec:'aac'}:{})},chapters}));
   if(!report.verification.ok)throw new Error('assembled_media_failed_verification');
   // The published deliverable appears only after validation; video.mp4 remains a verified intermediate until this point.

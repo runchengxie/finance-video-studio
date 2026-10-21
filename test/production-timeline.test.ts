@@ -28,3 +28,9 @@ test('timeline exports create-only escaped subtitles, chapters and storyboard',a
  const exact=path.join(root,'exact');await exportTimeline(precise,exact);
  assert.deepEqual(parseSrt(await readFile(path.join(exact,'subtitles.srt'),'utf8'),30).map(c=>[c.startFrame,c.endFrame]),precise.cues.map(c=>[c.startFrame,c.endFrame]));
 });
+
+test('chapter metadata displays chapter labels while IDs remain stable',async()=>{
+ const {chaptersMetadata}=await import('../src/production/subtitle-exports.js');
+ const p=parseProject(productionFixture());p.scenes[0]!.presentation={layout:'explanation',chapterLabel:'费用观察'};
+ assert.match(chaptersMetadata(p),/title=费用观察/);assert.equal(p.scenes[0]!.chapterId,'intro');
+});

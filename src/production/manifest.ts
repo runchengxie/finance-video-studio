@@ -14,13 +14,14 @@ const sourceSchema=z.object({id:idSchema,citation:text(4000),url:z.url().optiona
 const blockSchema=z.object({id:idSchema,text:text(8000),sourceIds:z.array(idSchema).max(1000)}).strict();
 const point=z.object({id:idSchema,label:text(80),value:number}).strict();
 const highlightSchema=z.object({x:z.number().min(0).max(1),y:z.number().min(0).max(1),width:z.number().positive().max(1),height:z.number().positive().max(1),cueId:idSchema}).strict().refine(r=>r.x+r.width<=1&&r.y+r.height<=1,'Highlight exceeds image');
-const presentationSchema=z.object({layout:z.enum(['evidence','wide-chart','explanation']),chapterLabel:text(120),headline:text(120).optional(),sidebar:z.array(z.object({label:text(120),cueId:idSchema.optional()}).strict()).max(3).optional(),evidencePanels:z.array(z.object({inputId:idSchema,sourceId:idSchema,label:text(120),pageLabel:text(80),highlight:highlightSchema.optional()}).strict()).max(2).optional()}).strict();
+const presentationSchema=z.object({chartStyle:z.enum(['bars','values']).optional(),layout:z.enum(['evidence','wide-chart','explanation']),chapterLabel:text(120),headline:text(120).optional(),sidebar:z.array(z.object({label:text(120),cueId:idSchema.optional()}).strict()).max(3).optional(),evidencePanels:z.array(z.object({inputId:idSchema,sourceId:idSchema,label:text(120),pageLabel:text(80),highlight:highlightSchema.optional()}).strict()).max(2).optional()}).strict();
 const sceneBase={presentation:presentationSchema.optional(),id:idSchema,from:frame,durationFrames:frame.min(1),title:text(120),chapterId:idSchema.optional(),sourceIds:z.array(idSchema).max(1000)};
 const unit=text(80);
+const precision=z.number().int().min(0).max(8).optional();
 const sceneSchema=z.discriminatedUnion('template',[
- z.object({...sceneBase,template:z.literal('metric'),data:z.object({id:idSchema,label:text(80),value:number,unit,qualifier:text(1000).optional()}).strict()}).strict(),
- z.object({...sceneBase,template:z.literal('comparison'),data:z.object({unit,items:z.array(point.extend({value:number.min(0)})).min(2).max(8),difference:z.object({leftId:idSchema,rightId:idSchema,label:text(80)}).strict().optional()}).strict()}).strict(),
- z.object({...sceneBase,template:z.literal('signed-comparison'),data:z.object({unit,items:z.array(point).min(2).max(8)}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('metric'),data:z.object({id:idSchema,label:text(80),value:number,unit,precision,qualifier:text(1000).optional()}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('comparison'),data:z.object({unit,precision,items:z.array(point.extend({value:number.min(0)})).min(2).max(8),difference:z.object({leftId:idSchema,rightId:idSchema,label:text(80),unit:text(80).optional(),cueId:idSchema.optional()}).strict().optional()}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('signed-comparison'),data:z.object({unit,precision,items:z.array(point).min(2).max(8)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('waterfall'),data:z.object({unit,start:point,steps:z.array(point).min(1).max(12),end:point}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('trend'),data:z.object({unit,series:z.array(z.object({id:idSchema,label:text(80),values:z.array(z.object({label:text(80),value:number}).strict()).min(2).max(100)}).strict()).min(1).max(4)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('process'),data:z.object({items:z.array(z.object({id:idSchema,label:text(80),detail:text(240)}).strict()).min(2).max(6)}).strict()}).strict(),
@@ -61,7 +62,9 @@ export function parseProject(value:unknown):ProductionProject {
  if(backgroundId&&inputs.get(backgroundId)?.mediaType!=='video')throw new Error('unknown_background_video');
  const cues=new Map(p.cues.map(c=>[c.id,c]));
  for(const s of p.scenes){
+  if(s.template==='comparison'&&s.data.difference?.cueId){const c=cues.get(s.data.difference.cueId);if(!c||c.startFrame<s.from||c.startFrame>=s.from+s.durationFrames)throw new Error('difference_cue_reference');}
   const presentation=s.presentation;if(!presentation)continue;
+  if(presentation.chartStyle==='values'&&s.template!=='comparison'&&s.template!=='signed-comparison')throw new Error('value_list_requires_comparison');
   for(const panel of presentation.evidencePanels??[]){
    if(inputs.get(panel.inputId)?.mediaType!=='image')throw new Error('unknown_panel_image');
    if(!sources.has(panel.sourceId)||!s.sourceIds.includes(panel.sourceId))throw new Error('panel_source_reference');

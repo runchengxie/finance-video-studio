@@ -16,7 +16,7 @@ export async function paint(page:Page,font:string,p:ProductionProject,sceneId:st
  const problems=await page.evaluate(()=>{
   const issues:string[]=[];if(!document.fonts.check('30px "Noto Sans SC"','虚构示例'))issues.push('missing_font');
   const caption=document.querySelector('.caption')?.getBoundingClientRect();
-  for(const el of Array.from(document.querySelectorAll('[data-fit]'))){const r=el.getBoundingClientRect();
+  for(const el of Array.from(document.querySelectorAll('[data-fit]'))){if(!el.getClientRects().length)continue;const r=el.getBoundingClientRect();
    const region=el.parentElement?.closest('[data-region]')?.getBoundingClientRect();
    if(region&&(r.left<region.left-1||r.top<region.top-1||r.right>region.right+1||r.bottom>region.bottom+1))issues.push(`region_overflow:${el.textContent}`);
    if(r.left<0||r.top<0||r.right>1920||r.bottom>1080||el instanceof HTMLElement&&(el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1))issues.push(`overflow:${el.textContent}`);
@@ -24,5 +24,6 @@ export async function paint(page:Page,font:string,p:ProductionProject,sceneId:st
   }return issues;
  });if(problems.length)throw new Error(`layout_check:${sceneId}:${problems.join('|')}`);
 }
+
 
 
