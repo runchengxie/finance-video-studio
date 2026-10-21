@@ -66,3 +66,4 @@ node --import tsx test/production-broadcast-example.ts /absolute/another-new-exa
 检查每段完整画面及动画中间帧，再看３９０像素宽的预览。`layout_check` 会指出分镜与溢出文字。可缩短屏幕标签、改用宽布局，或拆分内容较多的分镜，同时保留必要限定。完整引用保存在资料档案中，屏幕来源不应靠裁切来缩短。
 
 技术检查不能代替事实核验或人工听审。手机可读性、设备试播和发布状态分别记录。生成视频不会自动上传平台。
+费用构成与合计可设置 `presentation.chartStyle` 为 `values`，按数值列表展示。数字指标和比较图可通过 `precision` 指定０至８位小数。比较图的 `difference` 可单独设置 `unit` 和 `cueId`，分别控制差值单位与出现时点。百分点差额因此可以保留自己的单位。以上配置均参与审核快照。
