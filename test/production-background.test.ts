@@ -18,7 +18,7 @@ test('background advances during holds and retains its global phase across segme
   assert.ok(mediaTool('ffmpeg',['-v','error','-f','lavfi','-i','color=black@0:s=1920x1080,format=rgba','-frames:v','1',path.join(frames,'000000.png')]).ok);
   const background=await inspectBackground(bg);
   const sample=(file:string,frame:number)=>execFileSync(process.env.FFMPEG_PATH??'ffmpeg',['-v','error','-i',file,'-vf',`select=eq(n\\,${frame}),scale=1:1`,'-frames:v','1','-pix_fmt','rgb24','-f','rawvideo','-'],{windowsHide:true})[0]!;
-  for(const from of [18,45,65]){
+  for(const from of [18,52,65]){
    const out=path.join(root,`stage-${from}.mp4`);encodeStage({id:'test',sceneId:'scene',from,to:from+15,kind:'hold'},frames,out,18,background);
    assert.ok(Math.abs(sample(out,0)-sample(bg,from%60))<8,`start ${from}: ${sample(out,0)} / ${sample(bg,from%60)}`);assert.ok(Math.abs(sample(out,14)-sample(bg,(from+14)%60))<8,`end ${from}: ${sample(out,14)} / ${sample(bg,(from+14)%60)}`);
    assert.notEqual(sample(out,0),sample(out,14));
@@ -36,3 +36,4 @@ test('background containers reject playlists before launching a media probe',asy
   await assert.rejects(inspectBackground(file),/background_container/);
  }finally{if(original===undefined)delete process.env.FFPROBE_PATH;else process.env.FFPROBE_PATH=original;await rm(root,{recursive:true,force:true});}
 });
+
