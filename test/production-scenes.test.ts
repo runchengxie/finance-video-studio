@@ -31,3 +31,8 @@ test('dense process labels reject rather than overlapping their details',()=>{
  assert.throws(()=>sceneHtml(p,s.id,0,''),/process_density/);
 });
 
+
+test('existing studio production scenes pass the stricter SVG collision check',async()=>{
+ const {productionDemoFixture}=await import('../src/production/demo.js'),{capturePage,paint}=await import('../src/production/capture.js');const p=await productionDemoFixture('improved'),session=await capturePage();
+ try{for(const scene of p.scenes)await paint(session.page,session.font,p,scene.id,scene.from+scene.durationFrames-1);}finally{await session.close();}
+});
