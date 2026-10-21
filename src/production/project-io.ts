@@ -42,7 +42,7 @@ export async function importAsset(manifestFile:string,source:string,inputId:stri
  if(!within(await actualPath(root),await actualPath(destination)))throw new Error('input_root_escape');
  await copyFile(source,destination,constants.COPYFILE_EXCL);
  const copied=await hashFile(destination);if(copied!==digest)throw new Error('input_changed_during_copy');
- const mediaType=/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(ext)?'audio':/\.(json|csv)$/i.test(ext)?'data':'evidence';
+ const mediaType=/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(ext)?'audio':/\.(json|csv)$/i.test(ext)?'data':/\.(png|jpe?g)$/i.test(ext)?'image':/\.(mp4|mov|webm)$/i.test(ext)?'video':'evidence';
  const next=parseProject({...p,reviewPath:undefined,inputs:[...p.inputs,{id:inputId,path:relative,mediaType,sha256:copied,provenance:`Imported from ${source}`,rights:'Operator-imported; confirm usage rights during editorial review'}]});
  const revision=path.join(root,`project-${operationId}.json`);await writeJson(revision,next);
  await writeJson(path.join(operation,'completed.json'),{operationId,inputId,source,destination:relative,sha256:copied,revision:path.basename(revision),status:'completed'});

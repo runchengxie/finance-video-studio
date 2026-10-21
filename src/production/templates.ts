@@ -10,6 +10,7 @@ function chart(scene:Scene,state:SceneState,lang:ProductionProject['contentLangu
  const l=labels[lang];const focus=Object.values(state.targets).some(s=>s.active);const group=(id:string,body:string)=>{const s=state.targets[id]!;const opacity=!s.visible?0:s.action==='reveal'?s.progress:focus&&!s.active?.55:1;return `<g data-target="${escapeHtml(id)}" opacity="${opacity}" ${s.active&&s.action!=='reveal'?`stroke="${t.secondary}" stroke-width="2"`:''}>${body}</g>`;};
  const unit='unit' in scene.data?text(0,30,`${l.unit} · ${scene.data.unit}`,25,`fill="${t.muted}"`):'';
  switch(scene.template){
+  case 'signed-comparison':throw new Error('signed_comparison_requires_broadcast_renderer');
   case 'metric':return unit+group(scene.data.id,text(0,220,n(scene.data.value),130)+text(0,305,scene.data.label,40)+(scene.data.qualifier?wrap(scene.data.qualifier,65).map((s,i)=>text(0,400+i*38,s,28,`fill="${t.muted}"`)).join(''):''));
   case 'comparison':{
    const {items,difference}=scene.data,max=Math.max(1,...items.map(x=>x.value)),gap=Math.min(110,510/items.length),top=100;
@@ -44,4 +45,5 @@ export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,
  }
  return `<!doctype html><html lang="${project.contentLanguage}"><head><meta charset="utf-8"><style>${fontCss}*{box-sizing:border-box}html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:${t.background};color:${t.ink};font-family:"Noto Sans SC",sans-serif}svg{position:absolute;inset:0;fill:currentColor;font-family:inherit}h1{position:absolute;left:96px;top:88px;width:1728px;margin:0;font-size:50px;line-height:1.5}header{position:absolute;left:96px;top:38px;font-size:22px;letter-spacing:3px;color:${t.accent}}.caption{position:absolute;left:144px;top:880px;width:1632px;max-height:132px;padding:14px 28px;background:#172b3e;border-radius:12px;text-align:center;font-size:36px;line-height:1.4}.source{position:absolute;left:96px;top:810px;width:1728px;font-size:20px;line-height:1.4;color:${t.muted};max-height:56px;overflow:hidden}</style></head><body><header data-fit>${project.fictional?l.fictional:escapeHtml(project.id)} · ${escapeHtml(String(project.scenes.indexOf(scene)+1).padStart(2,'0'))}</header><h1 data-fit>${escapeHtml(scene.title)}</h1><svg width="1920" height="1080" viewBox="0 0 1920 1080"><g transform="translate(112 200)">${chart(scene,state,project.contentLanguage)}</g></svg>${sources?`<div data-fit class="source">${l.source} · ${escapeHtml(sources)}</div>`:''}${state.caption?`<div data-fit class="caption">${escapeHtml(state.caption)}</div>`:''}</body></html>`;
 }
+
 

@@ -9,15 +9,18 @@ export function isInputPath(value:string):boolean {
  return !path.posix.isAbsolute(value)&&!path.win32.isAbsolute(value)&&!value.includes('\\')&&
   !value.includes(':')&&value.startsWith('inputs/')&&value.split('/').every(p=>p!==''&&p!=='.'&&p!=='..');
 }
-export const inputSchema=z.object({id:idSchema,path:text(1024).refine(isInputPath,'Use a project-relative inputs/ path'),mediaType:z.enum(['audio','evidence','data']),sha256:z.string().regex(/^[a-f0-9]{64}$/),provenance:text(4000),rights:text(4000)}).strict();
+export const inputSchema=z.object({id:idSchema,path:text(1024).refine(isInputPath,'Use a project-relative inputs/ path'),mediaType:z.enum(['audio','evidence','data','image','video']),sha256:z.string().regex(/^[a-f0-9]{64}$/),provenance:text(4000),rights:text(4000)}).strict();
 const sourceSchema=z.object({id:idSchema,citation:text(4000),url:z.url().optional(),inputId:idSchema.optional()}).strict();
 const blockSchema=z.object({id:idSchema,text:text(8000),sourceIds:z.array(idSchema).max(1000)}).strict();
 const point=z.object({id:idSchema,label:text(80),value:number}).strict();
-const sceneBase={id:idSchema,from:frame,durationFrames:frame.min(1),title:text(120),chapterId:idSchema.optional(),sourceIds:z.array(idSchema).max(1000)};
+const highlightSchema=z.object({x:z.number().min(0).max(1),y:z.number().min(0).max(1),width:z.number().positive().max(1),height:z.number().positive().max(1),cueId:idSchema}).strict().refine(r=>r.x+r.width<=1&&r.y+r.height<=1,'Highlight exceeds image');
+const presentationSchema=z.object({layout:z.enum(['evidence','wide-chart','explanation']),chapterLabel:text(120),headline:text(120).optional(),sidebar:z.array(z.object({label:text(120),cueId:idSchema.optional()}).strict()).max(3).optional(),evidencePanels:z.array(z.object({inputId:idSchema,sourceId:idSchema,label:text(120),pageLabel:text(80),highlight:highlightSchema.optional()}).strict()).max(2).optional()}).strict();
+const sceneBase={presentation:presentationSchema.optional(),id:idSchema,from:frame,durationFrames:frame.min(1),title:text(120),chapterId:idSchema.optional(),sourceIds:z.array(idSchema).max(1000)};
 const unit=text(80);
 const sceneSchema=z.discriminatedUnion('template',[
  z.object({...sceneBase,template:z.literal('metric'),data:z.object({id:idSchema,label:text(80),value:number,unit,qualifier:text(1000).optional()}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('comparison'),data:z.object({unit,items:z.array(point.extend({value:number.min(0)})).min(2).max(8),difference:z.object({leftId:idSchema,rightId:idSchema,label:text(80)}).strict().optional()}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('signed-comparison'),data:z.object({unit,items:z.array(point).min(2).max(8)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('waterfall'),data:z.object({unit,start:point,steps:z.array(point).min(1).max(12),end:point}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('trend'),data:z.object({unit,series:z.array(z.object({id:idSchema,label:text(80),values:z.array(z.object({label:text(80),value:number}).strict()).min(2).max(100)}).strict()).min(1).max(4)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('process'),data:z.object({items:z.array(z.object({id:idSchema,label:text(80),detail:text(240)}).strict()).min(2).max(6)}).strict()}).strict(),
@@ -25,7 +28,7 @@ const sceneSchema=z.discriminatedUnion('template',[
 ]);
 const cueSchema=z.object({id:idSchema,text:text(180),startFrame:frame,endFrame:frame.min(1)}).strict();
 const eventSchema=z.object({id:idSchema,sceneId:idSchema,cueId:idSchema,targetId:idSchema,action:z.enum(['reveal','highlight','compare','annotate']),offsetFrames:z.number().int().min(-108000).max(108000),durationFrames:z.number().int().min(1).max(300),precision:z.enum(['cue_start','manually_aligned','unresolved'])}).strict();
-const renderSchema=z.object({theme:z.literal('studio-v1'),crf:z.number().int().min(0).max(40),audioId:idSchema.nullable(),normalization:z.object({targetLufs:z.number().min(-30).max(-10),truePeak:z.number().min(-6).max(-.1)}).strict().nullable(),backgroundAudioId:idSchema.optional()}).strict();
+const renderSchema=z.object({theme:z.enum(['studio-v1','broadcast-v1']),broadcast:z.object({programName:text(80),backgroundVideoId:idSchema.optional()}).strict().optional(),crf:z.number().int().min(0).max(40),audioId:idSchema.nullable(),normalization:z.object({targetLufs:z.number().min(-30).max(-10),truePeak:z.number().min(-6).max(-.1)}).strict().nullable(),backgroundAudioId:idSchema.optional()}).strict();
 export const manifestSchema=z.object({schemaVersion:z.literal(2),id:idSchema,title:text(120),contentLanguage:z.enum(['en','zh']),fictional:z.boolean(),fps:z.literal(30),width:z.literal(1920),height:z.literal(1080),durationFrames:frame.min(1),
  inputs:z.array(inputSchema).max(2000),sources:z.array(sourceSchema).max(1000),manuscript:z.array(blockSchema).min(1).max(500),scenes:z.array(sceneSchema).min(1).max(500),cues:z.array(cueSchema).max(20000),events:z.array(eventSchema).max(50000),render:renderSchema,reviewPath:text(1024).optional()}).strict();
 export type ProductionProject=z.infer<typeof manifestSchema>;
@@ -40,7 +43,7 @@ export type RenderSettings=z.infer<typeof renderSchema>;
 export function targetIds(scene:Scene):string[] {
  switch(scene.template){
   case 'metric':case 'evidence':return [scene.data.id];
-  case 'comparison':case 'process':return scene.data.items.map(p=>p.id);
+  case 'comparison':case 'signed-comparison':case 'process':return scene.data.items.map(p=>p.id);
   case 'waterfall':return [scene.data.start,...scene.data.steps,scene.data.end].map(p=>p.id);
   case 'trend':return scene.data.series.map(p=>p.id);
  }
@@ -53,6 +56,21 @@ export function parseProject(value:unknown):ProductionProject {
  for(const s of p.sources)if(s.inputId&&!inputs.has(s.inputId))throw new Error(`unknown_source_input:${s.id}`);
  for(const s of [...p.manuscript,...p.scenes])for(const id of s.sourceIds)if(!sources.has(id))throw new Error(`unknown_source:${id}`);
  for(const id of [p.render.audioId,p.render.backgroundAudioId])if(id&&inputs.get(id)?.mediaType!=='audio')throw new Error(`unknown_audio:${id}`);
+ if((p.render.theme==='broadcast-v1')!==Boolean(p.render.broadcast))throw new Error('broadcast_settings_theme');
+ const backgroundId=p.render.broadcast?.backgroundVideoId;
+ if(backgroundId&&inputs.get(backgroundId)?.mediaType!=='video')throw new Error('unknown_background_video');
+ const cues=new Map(p.cues.map(c=>[c.id,c]));
+ for(const s of p.scenes){
+  const presentation=s.presentation;if(!presentation)continue;
+  for(const panel of presentation.evidencePanels??[]){
+   if(inputs.get(panel.inputId)?.mediaType!=='image')throw new Error('unknown_panel_image');
+   if(!sources.has(panel.sourceId)||!s.sourceIds.includes(panel.sourceId))throw new Error('panel_source_reference');
+  }
+  for(const id of [...(presentation.sidebar??[]).map(x=>x.cueId),...(presentation.evidencePanels??[]).map(x=>x.highlight?.cueId)]){
+   if(!id)continue;const cue=cues.get(id);
+   if(!cue||cue.endFrame<=s.from||cue.startFrame>=s.from+s.durationFrames)throw new Error('presentation_cue_reference');
+  }
+ }
  if(p.render.normalization&&!p.render.audioId)throw new Error('normalization_requires_audio');
  let end=0;const chapters=new Set<string>();let lastChapter:string|undefined;
  for(const s of p.scenes){
