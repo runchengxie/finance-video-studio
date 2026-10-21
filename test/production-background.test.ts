@@ -26,3 +26,13 @@ test('background advances during holds and retains its global phase across segme
   }
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+test('background containers reject playlists before launching a media probe',async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'background-container-'));const original=process.env.FFPROBE_PATH;
+ try{
+  const {inspectBackground}=await import('../src/production/encoding.js');
+  const {writeFile}=await import('node:fs/promises');const file=path.join(root,'disguised.mp4');
+  await writeFile(file,'#EXTM3U\n#EXTINF:1,\n../outside.ts\n');process.env.FFPROBE_PATH=path.join(root,'must-not-launch');
+  await assert.rejects(inspectBackground(file),/background_container/);
+ }finally{if(original===undefined)delete process.env.FFPROBE_PATH;else process.env.FFPROBE_PATH=original;await rm(root,{recursive:true,force:true});}
+});

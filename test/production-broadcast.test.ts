@@ -76,3 +76,37 @@ test('stacked evidence cards validate visible text and ignore display-none step 
  const p=parseProject(broadcastFixture()),s=p.scenes[0]!;p.events=[];p.scenes=[{...s,template:'process',data:{items:[{id:'a',label:'First',detail:'First detail'},{id:'b',label:'Second',detail:'Second detail'}]}}];
  const session=await capturePage();try{await paint(session.page,session.font,p,'cash',30,'improved',assets);}finally{await session.close();}
 });
+
+test('broadcast renders existing emphasis events and SVG reveal progress',async()=>{
+ const p=parseProject(broadcastFixture());p.events=[];p.scenes[0]!.presentation={layout:'wide-chart',chapterLabel:'Test'};
+ const session=await capturePage();
+ try{
+  for(const action of ['highlight','compare','annotate'] as const){
+   await paint(session.page,session.font,p,'cash',25,'improved',assets);const plain=await session.page.screenshot();
+   const active=structuredClone(p);active.events=[{id:'focus',sceneId:'cash',cueId:'cue-1',targetId:'operating',action,offsetFrames:20,durationFrames:15,precision:'cue_start'}];
+   await paint(session.page,session.font,active,'cash',25,'improved',assets);assert.notDeepEqual(await session.page.screenshot(),plain,action);
+  }
+  const s=p.scenes[0]!;
+  for(const scene of [
+   {...s,template:'trend' as const,data:{unit:'%',series:[{id:'line',label:'Line',values:[{label:'A',value:1},{label:'B',value:2}]}]}},
+   {...s,template:'waterfall' as const,data:{unit:'%',start:{id:'line',label:'Start',value:10},steps:[{id:'cost',label:'Cost',value:-2}],end:{id:'end',label:'End',value:8}}},
+  ]){
+   const q={...p,scenes:[scene],events:[{id:'reveal',sceneId:'cash',cueId:'cue-1',targetId:'line',action:'reveal' as const,offsetFrames:0,durationFrames:15,precision:'cue_start' as const}]};
+   await paint(session.page,session.font,q,'cash',7,'improved',assets);const opacity=await session.page.locator('[data-target="line"]').getAttribute('opacity');assert.ok(Number(opacity)>0&&Number(opacity)<1);
+  }
+ }finally{await session.close();}
+});
+
+test('dense waterfall labels fail when neighboring text rectangles collide',async()=>{
+ const p=parseProject(broadcastFixture()),s=p.scenes[0]!;p.events=[];p.scenes=[{...s,presentation:{layout:'wide-chart',chapterLabel:'Test'},template:'waterfall',data:{unit:'元',start:{id:'start',label:'开始资产',value:100},steps:Array.from({length:10},(_,i)=>({id:'p'+i,label:'管理费项目'+i,value:1})),end:{id:'end',label:'结束资产',value:110}}}];
+ const session=await capturePage();try{await assert.rejects(paint(session.page,session.font,p,'cash',30,'improved',assets),/label_collision/);}finally{await session.close();}
+});
+
+test('document wrapping cannot silently shift highlights off the actual image',async()=>{
+ const p=parseProject(broadcastFixture());p.events=[];const panel=p.scenes[0]!.presentation!.evidencePanels![0]!;panel.label='资料标题'.repeat(8);
+ const session=await capturePage();
+ try{
+  const uri=await session.page.evaluate(()=>{const c=document.createElement('canvas');c.width=600;c.height=900;return c.toDataURL('image/png');});
+  await assert.rejects(paint(session.page,session.font,p,'cash',30,'improved',new Map([['page',uri]])),/image_bounds/);
+ }finally{await session.close();}
+});

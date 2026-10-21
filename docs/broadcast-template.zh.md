@@ -67,3 +67,4 @@ node --import tsx test/production-broadcast-example.ts /absolute/another-new-exa
 
 技术检查不能代替事实核验或人工听审。手机可读性、设备试播和发布状态分别记录。生成视频不会自动上传平台。
 费用构成与合计可设置 `presentation.chartStyle` 为 `values`，按数值列表展示。数字指标和比较图可通过 `precision` 指定０至８位小数。比较图的 `difference` 可单独设置 `unit` 和 `cueId`，分别控制差值单位与出现时点。百分点差额因此可以保留自己的单位。以上配置均参与审核快照。
+背景只接受自包含的 MP4、带 `ftyp` 文件头的 MOV 或 WebM。探测前拒绝播放列表，媒体工具禁用网络协议。图表标签重叠、资料图片超出面板时会停止渲染，可缩短标签或重新准备截图。

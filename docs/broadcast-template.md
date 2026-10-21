@@ -67,3 +67,4 @@ Inspect every scene and reveal midpoint at full resolution, then inspect a 390 p
 
 Automated checks do not establish factual correctness, mobile readability, human listening or native-player compatibility. Record those review states separately. Rendering does not publish a video.
 `presentation.chartStyle: "values"` displays comparison items as a numeric list, useful for fee components and totals. Numeric metric/comparison data can set `precision` (0–8 decimal places). A comparison `difference` can set its own `unit` and a `cueId` for delayed appearance, so a percentage-point difference is not labeled as a percentage rate. These options are part of the reviewed snapshot.
+Backgrounds must be self-contained MP4/MOV (with an `ftyp` header) or WebM. Playlists and network protocols are rejected before probing. Dense chart labels or document images that exceed their assigned regions stop the render; shorten the label or prepare a smaller crop.
