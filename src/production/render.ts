@@ -1,3 +1,6 @@
+import {loadVisualAssets} from './visual-assets.js';
+import {encodeStage,inspectBackground,productionColors} from './encoding.js';
+import {resolveInput} from './paths.js';
 import {mkdir,writeFile,link,unlink,open,copyFile,constants} from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -59,15 +62,18 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
  let session:Awaited<ReturnType<typeof capturePage>>|undefined;
  try{
   session=await capturePage();tools.browser=session.page.context().browser()!.version();tools.font=hash(session.font);
+  const visualAssets=await loadVisualAssets(manifestFile,project);
+  const backgroundId=project.render.broadcast?.backgroundVideoId;
+  const background=backgroundId?await inspectBackground(await resolveInput(manifestFile,project.inputs.find(x=>x.id===backgroundId)!.path)):undefined;
   const segments:string[]=[];
   for(const stage of compileStages(project)){
-   const expected=mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:stage.to-stage.from,durationSeconds:(stage.to-stage.from)/30,videoCodec:'h264',pixelFormat:'yuv420p',audio:{required:false}});
+   const expected=mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:stage.to-stage.from,durationSeconds:(stage.to-stage.from)/30,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:false}});
    const began=performance.now(),key=cacheKey({stage,snapshot:hash(snapshot),tools,settings:{...project.render,variant}}),cached=await readCache(cache,key,expected);
    if(cached.hit)segments.push(cached.file);
    else{
-    const temp=path.join(cache,`${key}-${randomUUID()}.partial.mp4`),frames=stage.to-stage.from,framesDir=path.join(output,stage.id);await mkdir(framesDir);
-    for(let f=stage.from;f<(stage.kind==='hold'?stage.from+1:stage.to);f++){await paint(session.page,session.font,project,stage.sceneId,f,variant);await session.page.screenshot({path:path.join(framesDir,`${String(f-stage.from).padStart(6,'0')}.png`)});}
-    const encoded=mediaTool('ffmpeg',['-v','error',...(stage.kind==='hold'?['-loop','1']:[]),'-framerate','30','-i',path.join(framesDir,'%06d.png'),'-frames:v',String(frames),'-an','-c:v','libx264','-preset','veryfast','-crf',String(project.render.crf),'-pix_fmt','yuv420p',temp]);if(!encoded.ok)throw new Error(`stage_encode_failed:${encoded.stderr.slice(-2000)}`);
+    const temp=path.join(cache,`${key}-${randomUUID()}.partial.mp4`),framesDir=path.join(output,stage.id);await mkdir(framesDir);
+    for(let f=stage.from;f<(stage.kind==='hold'?stage.from+1:stage.to);f++){await paint(session.page,session.font,project,stage.sceneId,f,variant,visualAssets);await session.page.screenshot({omitBackground:project.render.theme==='broadcast-v1',path:path.join(framesDir,`${String(f-stage.from).padStart(6,'0')}.png`)});}
+    encodeStage(stage,framesDir,temp,project.render.crf,background);
     segments.push(await publishCache(cache,key,temp,expected));
    }
    report.stages.push({id:stage.id,hit:cached.hit,reason:cached.reason,milliseconds:performance.now()-began});
@@ -77,11 +83,12 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
   if(hash(snapshot)!==hash(await snapshotProject(manifestFile)))throw new Error('inputs_changed_during_render');
   await exportTimeline(project,path.join(output,'timeline'));
   const video=await assemble(project,manifestFile,segments,output),chapters=project.scenes.filter((s,i)=>s.chapterId&&s.chapterId!==project.scenes[i-1]?.chapterId).map((s,i,all)=>({title:s.chapterId!,startFrame:s.from,endFrame:all[i+1]?.from??project.durationFrames}));
-  report.verification=await verifyMedia(video,mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:project.durationFrames,durationSeconds:project.durationFrames/30,videoCodec:'h264',pixelFormat:'yuv420p',audio:{required:!!project.render.audioId||!!project.render.backgroundAudioId,...(project.render.audioId||project.render.backgroundAudioId?{codec:'aac'}:{})},chapters}));
+  report.verification=await verifyMedia(video,mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:project.durationFrames,durationSeconds:project.durationFrames/30,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:!!project.render.audioId||!!project.render.backgroundAudioId,...(project.render.audioId||project.render.backgroundAudioId?{codec:'aac'}:{})},chapters}));
   if(!report.verification.ok)throw new Error('assembled_media_failed_verification');
   // The published deliverable appears only after validation; video.mp4 remains a verified intermediate until this point.
   await authorize();await link(video,path.join(output,'final.mp4'));await unlink(video);report.verification.file=path.join(output,'final.mp4');report.ok=true;return report;
  }catch(e){report.failure=(e as Error).message;throw e;}
  finally{report.milliseconds=performance.now()-start;await session?.close();await unlink(path.join(cache,'.render-lock'));await writeJson(path.join(output,'build.json'),report);await writeFile(path.join(output,'README.txt'),'Inspect final.mp4 and build.json. Automated decode is not human listening.\n',{flag:'wx'});}
 }
+
 

@@ -13,7 +13,7 @@ export async function assemble(project:ProductionProject,manifest:string,segment
  const metaIndex=1+audioIds.length;args.push('-f','ffmetadata','-i',metadata,'-map','0:v:0');
  if(audioIds.length){let filter=audioIds.length===2?'[1:a]apad[a];[2:a]volume=0.12,apad[b];[a][b]amix=inputs=2:duration=longest:normalize=0':'[1:a]apad';
   if(project.render.normalization)filter+=`,loudnorm=I=${project.render.normalization.targetLufs}:TP=${project.render.normalization.truePeak}:LRA=11`;
-  args.push('-filter_complex',`${filter}[audio]`,'-map','[audio]','-c:a','aac','-b:a','192k');
+  args.push('-filter_complex',`${filter}[audio]`,'-map','[audio]','-c:a','aac','-b:a','192k','-ar','48000');
  }else args.push('-an');
  args.push('-map_metadata',String(metaIndex),'-map_chapters',String(metaIndex),'-c:v','copy','-t',String(project.durationFrames/30),'-movflags','+faststart');
  const temp=path.join(output,'assembled.partial.mp4'),final=path.join(output,'video.mp4');const encoded=mediaTool('ffmpeg',[...args,temp]);if(!encoded.ok)throw new Error(`assembly_failed:${encoded.stderr.slice(-2000)}`);

@@ -22,3 +22,11 @@ test('media verification counts, decodes and reports mismatches and allowed sign
  const corrupt=path.join(root,'corrupt.mp4');await writeFile(corrupt,'not a media file');const report=await verifyMedia(corrupt,expected);assert.equal(report.ok,false);assert.ok(report.checks.some(c=>c.name==='probe'&&!c.passed));
  assert.equal(report.manualListening,false);
 });
+
+test('verification rejects full-range and incorrect primaries even when dimensions decode',async t=>{
+ const root=await mkdtemp(path.join(tmpdir(),'verify-colors-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ const file=path.join(root,'color.mp4');
+ execFileSync(process.env.FFMPEG_PATH??'ffmpeg',['-v','error','-f','lavfi','-i','color=red:s=320x180:r=30:d=1','-c:v','libx264','-pix_fmt','yuv420p','-color_range','pc','-colorspace','bt470bg','-color_trc','gamma28','-color_primaries','bt470bg',file],{windowsHide:true});
+ const report=await verifyMedia(file,{width:320,height:180,fps:30,frames:30,durationSeconds:1,videoCodec:'h264',pixelFormat:'yuv420p',audio:{required:false},colorRange:'tv',colorSpace:'bt709',colorTransfer:'bt709',colorPrimaries:'bt709'});
+ assert.equal(report.ok,false);for(const name of ['color_range','color_space','color_transfer','color_primaries'])assert.ok(report.checks.some(c=>c.name===name&&!c.passed));
+});
