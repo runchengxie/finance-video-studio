@@ -17,9 +17,12 @@ No dependency or rendering-engine changes. Do not imply that documented operator
 ## Tasks
 
 - [x] Add English and Chinese production guidance and navigation, with a persistent AGENTS link.
-- [ ] Run repository check, tests, smoke and strict bilingual documentation validation.
-- [ ] Review the whole diff, integrate through a passing PR and verify Pages deployment.
+- [x] Run repository check, tests, smoke and strict bilingual documentation validation.
+- [x] Review the whole diff. Integration and Pages deployment are tracked by PR #12 and its main-branch CI run.
 
 ## Decisions
 
 Documentation-only changes need no artificial unit test duplicating prose. The existing required repository checks and strict documentation build validate integration. The real video uses a separately hash-bound local adapter, with an unchanged approval gate.
+
+Validation: 66 tests passed, check passed, 90-frame silent and 60-frame audio smoke checks passed, review example passed, strict English/Chinese docs build passed. Independent review found no critical or important issues.
+
