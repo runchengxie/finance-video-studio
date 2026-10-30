@@ -4,6 +4,8 @@
 
 ## 开始使用
 
+[制作流程](production-workflow.md)说明数字证据、图表动画，以及默认不含内部笔记的正式版交付要求。
+
 需要 Node 24 或更新版本，以及 PATH 中支持 libx264 的 FFmpeg 和 ffprobe。先安装锁定依赖与 Chromium，再执行离线检查。
 
 ```sh

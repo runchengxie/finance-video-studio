@@ -4,6 +4,8 @@ Create deterministic local finance explainer videos with explicit manuscript rev
 
 ## Getting started
 
+Follow the [production workflow](production-workflow.md) for evidence, numeric visuals, motion and clean formal delivery.
+
 Use Node 24 or newer and FFmpeg/ffprobe with libx264 available on PATH. Install the pinned dependencies and Chromium before working offline:
 
 ```sh
