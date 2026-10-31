@@ -1,7 +1,7 @@
 import {loadVisualAssets} from './visual-assets.js';
 import {encodeStage,inspectBackground,productionColors} from './encoding.js';
 import {resolveInput} from './paths.js';
-import {mkdir,writeFile,link,unlink,open,copyFile,constants} from 'node:fs/promises';
+import {mkdir,writeFile,link,unlink,copyFile,constants} from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {hash} from '../review.js';
@@ -22,6 +22,8 @@ import {productionDemoFixture,type DemoVariant} from './demo.js';
 import type {EditorialSnapshot} from './snapshot.js';
 import {generateVoice} from './voice.js';
 import {assertAudienceReady} from './preflight.js';
+import {visualStageFingerprint} from './visual-fingerprint.js';
+import {acquireRenderLock} from './render-lock.js';
 export type BuildReport={ok:boolean;inputHash:string;tools:Record<string,string>;stages:{id:string;hit:boolean;reason:string;milliseconds:number}[];milliseconds:number;verification:VerificationReport|null;failure:string|null};
 export async function renderProduction(manifestFile:string,reviewFile:string,output:string,cache:string):Promise<BuildReport>{
  const snapshot=await snapshotProject(manifestFile),review=await loadProductionReview(reviewFile);assertProductionApproved(snapshot,review);
@@ -60,7 +62,7 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
  const project=snapshot.project,start=performance.now(),tools:Record<string,string>={ffmpeg:toolVersion('ffmpeg'),ffprobe:toolVersion('ffprobe')};
  await mkdir(output);await mkdir(cache,{recursive:true});
  const report:BuildReport={ok:false,inputHash:hash(snapshot),tools,stages:[],milliseconds:0,verification:null,failure:null};
- const lock=await open(path.join(cache,'.render-lock'),'wx');await lock.close();
+ const releaseLock=await acquireRenderLock(cache);
  let session:Awaited<ReturnType<typeof capturePage>>|undefined;
  try{
   session=await capturePage();tools.browser=session.page.context().browser()!.version();tools.font=hash(session.font);
@@ -69,13 +71,13 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
   const background=backgroundId?await inspectBackground(await resolveInput(manifestFile,project.inputs.find(x=>x.id===backgroundId)!.path)):undefined;
   const segments:string[]=[];
   for(const stage of compileStages(project)){
-   const expected=mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:stage.to-stage.from,durationSeconds:(stage.to-stage.from)/30,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:false}});
-   const began=performance.now(),key=cacheKey({stage,snapshot:hash(snapshot),tools,settings:{...project.render,variant}}),cached=await readCache(cache,key,expected);
+   const expected=mediaExpectationsSchema.parse({width:project.width,height:project.height,fps:project.fps,frames:stage.to-stage.from,durationSeconds:(stage.to-stage.from)/project.fps,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:false}});
+   const began=performance.now(),key=cacheKey({stage,snapshot:hash(visualStageFingerprint(project,stage,snapshot.templateRevision)),tools,settings:{variant}}),cached=await readCache(cache,key,expected);
    if(cached.hit)segments.push(cached.file);
    else{
     const temp=path.join(cache,`${key}-${randomUUID()}.partial.mp4`),framesDir=path.join(output,stage.id);await mkdir(framesDir);
     for(let f=stage.from;f<(stage.kind==='hold'?stage.from+1:stage.to);f++){await paint(session.page,session.font,project,stage.sceneId,f,variant,visualAssets);await session.page.screenshot({omitBackground:project.render.theme==='broadcast-v1',path:path.join(framesDir,`${String(f-stage.from).padStart(6,'0')}.png`)});}
-    encodeStage(stage,framesDir,temp,project.render.crf,background);
+    encodeStage(stage,framesDir,temp,project.render.crf,background,project.fps);
     segments.push(await publishCache(cache,key,temp,expected));
    }
    report.stages.push({id:stage.id,hit:cached.hit,reason:cached.reason,milliseconds:performance.now()-began});
@@ -85,12 +87,12 @@ async function renderBuild(manifestFile:string,snapshot:EditorialSnapshot,output
   if(hash(snapshot)!==hash(await snapshotProject(manifestFile)))throw new Error('inputs_changed_during_render');
   await exportTimeline(project,path.join(output,'timeline'));
   const video=await assemble(project,manifestFile,segments,output),chapters=project.scenes.filter((s,i)=>s.chapterId&&s.chapterId!==project.scenes[i-1]?.chapterId).map((s,i,all)=>({title:s.presentation?.chapterLabel??s.chapterId!,startFrame:s.from,endFrame:all[i+1]?.from??project.durationFrames}));
-  report.verification=await verifyMedia(video,mediaExpectationsSchema.parse({width:1920,height:1080,fps:30,frames:project.durationFrames,durationSeconds:project.durationFrames/30,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:!!project.render.audioId||!!project.render.backgroundAudioId,...(project.render.audioId||project.render.backgroundAudioId?{codec:'aac'}:{})},chapters}));
+  report.verification=await verifyMedia(video,mediaExpectationsSchema.parse({width:project.width,height:project.height,fps:project.fps,frames:project.durationFrames,durationSeconds:project.durationFrames/project.fps,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:!!project.render.audioId||!!project.render.backgroundAudioId,...(project.render.audioId||project.render.backgroundAudioId?{codec:'aac'}:{})},chapters}));
   if(!report.verification.ok)throw new Error('assembled_media_failed_verification');
   // The published deliverable appears only after validation; video.mp4 remains a verified intermediate until this point.
   await authorize();await link(video,path.join(output,'final.mp4'));await unlink(video);report.verification.file=path.join(output,'final.mp4');report.ok=true;return report;
  }catch(e){report.failure=(e as Error).message;throw e;}
- finally{report.milliseconds=performance.now()-start;await session?.close();await unlink(path.join(cache,'.render-lock'));await writeJson(path.join(output,'build.json'),report);await writeFile(path.join(output,'README.txt'),'Inspect final.mp4 and build.json. Automated decode is not human listening.\n',{flag:'wx'});}
+ finally{report.milliseconds=performance.now()-start;try{await session?.close();}finally{await releaseLock();}await writeJson(path.join(output,'build.json'),report);await writeFile(path.join(output,'README.txt'),'Inspect final.mp4 and build.json. Automated decode is not human listening.\n',{flag:'wx'});}
 }
 
 

@@ -28,3 +28,10 @@ test('voice execution is explicit, local and never mutates original inputs',asyn
  await assert.rejects(()=>generateVoice(manifest,{voice:'NoSuchVoice',output:out,executeLocal:true}),process.platform==='win32'?/unavailable_voice/:/windows_required/);
  await assert.rejects(()=>access(out));assert.equal(await hashFile(manifest),before);
 });
+
+test('portrait voice padding uses the selected 60fps time base',async()=>{
+ const dir=await mkdtemp(path.join(os.tmpdir(),'studio-voice-60-')),raw=path.join(dir,'raw.wav'),aligned=path.join(dir,'aligned.wav');
+ assert.ok(mediaTool('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=0.1','-c:a','pcm_s16le',raw]).ok);
+ padVoiceClip(raw,aligned,60,60);
+ const seconds=Number(JSON.parse(mediaTool('ffprobe',['-v','error','-show_entries','format=duration','-of','json',aligned]).stdout).format.duration);assert(Math.abs(seconds-1)<1/48000);
+});

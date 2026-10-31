@@ -1,0 +1,47 @@
+import type {ProductionProject,Scene} from './manifest.js';
+import {sceneState,type SceneState} from './scene-state.js';
+import {escapeHtml as e} from './templates.js';
+import {visualPalette} from './visual-profile.js';
+import {labels} from './locales.js';
+import {deliveryLabels} from './delivery-locales.js';
+
+const number=(v:number,d?:number)=>new Intl.NumberFormat('en',{maximumFractionDigits:d??8,minimumFractionDigits:d??0}).format(v);
+function opacity(s:SceneState,id:string){const t=s.targets[id]!;return !t.visible?0:t.action==='reveal'?1-(1-t.progress)**3:1;}
+function emphasis(s:SceneState,id:string){const t=s.targets[id]!;return t.active&&t.action!=='reveal'?'brightness(1.3) drop-shadow(0 0 5px #b92a28)':'none';}
+function panel(scene:Scene,state:SceneState,p:ProductionProject):string {
+ const c=visualPalette(p),l=labels[p.contentLanguage],wrap=(id:string,body:string)=>`<div class="target" data-target="${e(id)}" style="opacity:${opacity(state,id)};filter:${emphasis(state,id)}">${body}</div>`;
+ switch(scene.template){
+ case 'metric':return wrap(scene.data.id,`<div class="metric-label" data-fit>${e(scene.data.label)}</div><div class="metric-value" data-fit>${e(number(scene.data.value,scene.data.precision))}</div><div class="unit" data-fit>${e(scene.data.unit)}</div>${scene.data.qualifier?`<p data-fit>${e(scene.data.qualifier)}</p>`:''}`);
+ case 'comparison':case 'signed-comparison':{
+  const lo=Math.min(0,...scene.data.items.map(x=>x.value)),hi=Math.max(1,...scene.data.items.map(x=>x.value)),range=hi-lo;
+  const d=scene.template==='comparison'?scene.data.difference:undefined,show=d&&(!d.cueId||state.frame>=p.cues.find(x=>x.id===d.cueId)!.startFrame);
+  const difference=show?`<p data-fit>${e(d.label)} · ${e(number(scene.data.items.find(x=>x.id===d.rightId)!.value-scene.data.items.find(x=>x.id===d.leftId)!.value,scene.data.precision))} ${e(d.unit??scene.data.unit)}</p>`:'';
+  return `<div class="unit" data-fit>${e(scene.data.unit)}</div>`+scene.data.items.map(x=>wrap(x.id,`<div class="row"><div class="row-label" data-fit>${e(x.label)}</div><b data-fit>${e(number(x.value,scene.data.precision))}</b></div><div class="${scene.presentation?.chartStyle==='values'?'values-only':'rail'}"><div class="zero" style="left:${-lo/range*100}%"></div><div class="fill" style="transform:scaleX(${opacity(state,x.id)});transform-origin:${x.value<0?'right':'left'};left:${(Math.min(0,x.value)-lo)/range*100}%;width:${Math.abs(x.value)/range*100}%;background:${x.value<0?c.negative:c.accent}"></div></div>`)).join('')+difference;
+ }
+ case 'process':return scene.data.items.map((x,i)=>wrap(x.id,`<article data-region><div class="step" data-fit>${e(l.step)} ${i+1} · ${e(x.label)}</div><div class="detail" data-fit>${e(x.detail)}</div></article>`)).join('');
+ case 'evidence':return wrap(scene.data.id,`<blockquote data-fit>${e(scene.data.text)}</blockquote>`);
+ case 'trend':{
+  const values=scene.data.series.flatMap(s=>s.values.map(v=>v.value)),lo=Math.min(0,...values),hi=Math.max(1,...values),y=(v:number)=>430-(v-lo)/(hi-lo)*330;
+  return `<div class="unit" data-fit>${e(scene.data.unit)}</div><svg width="840" height="520" viewBox="0 0 840 520"><path d="M70 60V430H790" stroke="${c.muted}" fill="none"/><text x="0" y="80">${e(number(hi))}</text><text x="0" y="430">${e(number(lo))}</text>${scene.data.series.map((s,j)=>`<g data-target="${e(s.id)}" opacity="${opacity(state,s.id)}"><polyline points="${s.values.map((v,i)=>`${70+i/(s.values.length-1)*720},${y(v.value)}`).join(' ')}" stroke="${[c.accent,c.secondary,c.negative,'#8173b9'][j]}" stroke-width="6" fill="none"/><text x="${70+j*190}" y="510" data-fit>${e(s.label)}</text></g>`).join('')}<text x="70" y="475" data-fit>${e(scene.data.series[0]!.values[0]!.label)}</text><text x="790" y="475" text-anchor="end" data-fit>${e(scene.data.series[0]!.values.at(-1)!.label)}</text></svg>`;
+ }
+ case 'waterfall':{
+  let total=scene.data.start.value;const points=[scene.data.start,...scene.data.steps,scene.data.end],spans=points.map((x,i)=>{if(i===0||i===points.length-1)return {x,a:0,b:x.value};const a=total;total+=x.value;return {x,a,b:total}});
+  const lo=Math.min(0,...spans.flatMap(x=>[x.a,x.b])),hi=Math.max(1,...spans.flatMap(x=>[x.a,x.b])),y=(v:number)=>390-(v-lo)/(hi-lo)*290,w=800/points.length;
+  return `<div class="unit" data-fit>${e(scene.data.unit)}</div><svg width="840" height="520" viewBox="0 0 840 520"><path d="M10 ${y(0)}H825" stroke="${c.muted}"/>${spans.map(({x,a,b},i)=>`<g data-target="${e(x.id)}" opacity="${opacity(state,x.id)}"><rect x="${15+i*w}" y="${Math.min(y(a),y(b))}" width="${w*.7}" height="${Math.max(2,Math.abs(y(a)-y(b)))}" fill="${x.value<0?c.negative:c.accent}"/><text x="${15+i*w}" y="${Math.min(y(a),y(b))-16}" data-fit>${e(number(x.value))}</text><text x="${15+i*w}" y="460" data-fit>${e(x.label)}</text></g>`).join('')}</svg>`;
+ }
+ }
+}
+export function portraitSceneHtml(p:ProductionProject,sceneId:string,frame:number,font:string):string {
+ const s=p.scenes.find(x=>x.id===sceneId)!,state=sceneState(p,sceneId,frame),c=visualPalette(p),l=labels[p.contentLanguage];
+ const sourceIds=[...new Set([...s.sourceIds,...(s.template==='evidence'?[s.data.sourceId]:[])])],sources=sourceIds.map(id=>p.sources.find(x=>x.id===id)!.citation).join(' · ');
+ const x=p.render.visual?.motion==='subtle'?Math.sin(frame/p.fps/12)*18:0;
+ const markup= `<!doctype html><html lang="${p.contentLanguage}"><meta charset="utf-8"><style>${font}*{box-sizing:border-box}html,body{margin:0;width:1080px;height:1440px;overflow:hidden;background:${c.background};color:${c.ink};font-family:'Noto Sans SC',sans-serif}.texture{position:absolute;inset:0;pointer-events:none;transform:translateX(${x}px);background:repeating-linear-gradient(120deg,transparent 0 140px,${c.muted}0b 142px 144px,transparent 146px 235px)}header{position:absolute;left:76px;top:68px;width:928px;font-size:26px;line-height:1.5;padding-bottom:25px;border-bottom:2px solid ${c.muted}66;color:${c.accent}}h1{position:absolute;left:76px;top:190px;width:928px;max-height:215px;margin:0;font-size:66px;line-height:1.6;overflow:hidden}.content{position:absolute;left:76px;top:450px;width:928px;height:620px;padding:30px 40px;background:${c.surface};border:2px solid ${c.muted}33;overflow:hidden;font-size:30px;line-height:1.6}.unit{font-size:26px;color:${c.muted};margin-bottom:22px}.metric-label{font-size:38px;margin-top:25px}.metric-value{font-size:132px;color:${c.accent};font-weight:800;line-height:1.6}.row{display:flex;justify-content:space-between;align-items:baseline;gap:20px;font-size:27px}.row-label{max-width:610px;white-space:nowrap}.row b{color:${c.accent};white-space:nowrap}.rail{position:relative;height:22px;background:${c.muted}22;margin:6px 0 18px}.fill{position:absolute;height:22px}.zero{position:absolute;top:-4px;height:30px;border-left:2px solid ${c.muted}}article{border-left:5px solid ${c.accent};padding:7px 16px;margin-bottom:10px;background:${c.background}}.step{font-size:28px;font-weight:700}.detail{font-size:23px;line-height:1.6;color:${c.muted}}blockquote{font-size:34px;line-height:1.8;margin:10px 0}.source{position:absolute;left:76px;top:1110px;width:928px;max-height:78px;overflow:hidden;font-size:23px;line-height:1.6;color:${c.muted}}.caption{position:absolute;left:76px;top:1230px;width:928px;max-height:140px;padding:18px 26px;background:${c.ink};color:${c.background};font-size:34px;line-height:1.6;text-align:center;overflow:hidden}.footer{position:absolute;left:76px;right:76px;bottom:24px;font-size:20px;color:${c.muted};display:flex;justify-content:space-between}svg text{fill:currentColor;font-family:inherit;font-size:25px}</style><div class="texture"></div><header data-fit>${e(p.render.broadcast?.programName??deliveryLabels[p.contentLanguage].series)} · ${p.fictional?e(l.fictional):e(l.evidence)}</header><h1 data-fit>${e(s.title)}</h1><main class="content" data-region>${panel(s,state,p)}</main>${sources?`<div class="source" data-fit>${e(l.source)} · ${e(sources)}</div>`:''}${state.caption?`<div class="caption" data-fit>${e(state.caption)}</div>`:''}<div class="footer"><span>${e(p.title)}</span><span>${p.scenes.indexOf(s)+1} / ${p.scenes.length}</span></div></html>`;
+ const sidebar=s.presentation?.sidebar??[];
+ const extra=[s.presentation?.chapterLabel,s.presentation?.headline].filter(Boolean).join(' · ');
+ const notes=sidebar.length?'<section class="sidebar" data-region>'+sidebar.map(item=>'<div data-fit style="opacity:'+(!item.cueId||state.frame>=p.cues.find(c=>c.id===item.cueId)!.startFrame?1:.6)+'">'+e(item.label)+'</div>').join('')+'</section>':'';
+ let result=markup.replace('</header>',(extra?'<small class="subheadline">'+e(extra)+'</small>':'')+'</header>').replace('</main>','</main>'+notes);
+ result=result.replace('</style>','header{max-height:110px;overflow:hidden;padding-bottom:10px}.subheadline{display:block;font-size:22px;line-height:1.6;margin-top:6px}.values-only{display:none}.sidebar{position:absolute;left:76px;top:950px;width:928px;height:140px;display:flex;gap:18px;color:'+c.muted+'}.sidebar>div{flex:1;min-width:0;max-height:140px;overflow:hidden;border-left:3px solid '+c.accent+';padding:8px 12px;font-size:22px;line-height:1.6}'+(sidebar.length?'.content{height:470px}':'')+'</style>');
+ result=result.replace(/<g data-target="([^"]+)" opacity="([^"]+)">/g,(_,id,alpha)=>'<g data-target="'+id+'" opacity="'+alpha+'" style="filter:'+emphasis(state,id)+'">');
+ return result;
+
+}

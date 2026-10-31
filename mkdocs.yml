@@ -59,6 +59,8 @@ plugins:
             Production rendering: 视频生成
             Production workflow: 制作流程
             Complete delivery: 完整交付
+            Portrait and review: 竖版与审阅
+            Narration comparison: 旁白版本比较
             Broadcast template: 栏目模板
             Local voice: 本机配音
             Historical adoption: 历史迁移
@@ -75,6 +77,8 @@ nav:
   - Production rendering: production-rendering.md
   - Production workflow: production-workflow.md
   - Complete delivery: production-delivery.md
+  - Portrait and review: production-advanced.md
+  - Narration comparison: narration-comparison.md
   - Broadcast template: broadcast-template.md
   - Local voice: local-voice.md
   - Historical adoption: historical-adoption.md

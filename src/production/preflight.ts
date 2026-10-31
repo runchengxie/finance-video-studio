@@ -1,4 +1,5 @@
 import {parseProject,type ProductionProject} from './manifest.js';
+import {auditNumericClaims} from './evidence-ledger.js';
 
 const internal=/待听校|待逐句核对|年份按资料更正|原声保留|内容与字幕待核|画面探索|pending (?:human )?listening|original voice retained|year corrected from sources/i;
 export type AuditIssue={code:string;field:string;original:string;suggestion?:string};
@@ -31,5 +32,5 @@ export function auditProduction(value:ProductionProject){
    if(!p.events.some(e=>e.cueId===cue.id))issues.push({code:'numeric_cue_without_event',field,original:cue.text});
   }
  }
- return {projectId:p.id,issues,factualVerification:false,manualListening:false,numericCoverageMeaning:'Event presence is a review lead, not proof of matching values or alignment.'};
+ return {projectId:p.id,issues,numericEvidence:auditNumericClaims(p),factualVerification:false,manualListening:false,numericCoverageMeaning:'Event presence is a review lead, not proof of matching values or alignment.'};
 }

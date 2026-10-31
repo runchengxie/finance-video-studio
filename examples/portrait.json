@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 2,
+  "id": "portrait-fictional",
+  "title": "虚构公司：盈利与现金流",
+  "contentLanguage": "zh",
+  "fictional": true,
+  "width": 1080,
+  "height": 1440,
+  "fps": 60,
+  "durationFrames": 360,
+  "inputs": [],
+  "sources": [
+    {
+      "id": "synthetic",
+      "citation": "原创虚构数据，仅供流程演示"
+    }
+  ],
+  "manuscript": [
+    {
+      "id": "body",
+      "text": "使用虚构数字演示对比图、趋势图和观察流程。本示例无配音。",
+      "sourceIds": [
+        "synthetic"
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "comparison",
+      "from": 0,
+      "durationFrames": 120,
+      "title": "收入与内容付款",
+      "chapterId": "cash",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "comparison",
+      "data": {
+        "unit": "亿元",
+        "items": [
+          {
+            "id": "revenue",
+            "label": "虚构营收",
+            "value": 40
+          },
+          {
+            "id": "content",
+            "label": "虚构内容付款",
+            "value": 28
+          }
+        ]
+      }
+    },
+    {
+      "id": "margin",
+      "from": 120,
+      "durationFrames": 120,
+      "title": "利润率的变化",
+      "chapterId": "margin",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "trend",
+      "data": {
+        "unit": "%",
+        "series": [
+          {
+            "id": "margin-line",
+            "label": "虚构利润率",
+            "values": [
+              {
+                "label": "Q1",
+                "value": 18
+              },
+              {
+                "label": "Q2",
+                "value": 22
+              },
+              {
+                "label": "Q3",
+                "value": 26
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "watch",
+      "from": 240,
+      "durationFrames": 120,
+      "title": "后续观察什么？",
+      "chapterId": "watch",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "template": "process",
+      "data": {
+        "items": [
+          {
+            "id": "income",
+            "label": "收入",
+            "detail": "增速能否持续"
+          },
+          {
+            "id": "payment",
+            "label": "内容付款",
+            "detail": "与收入增长比较"
+          },
+          {
+            "id": "cash",
+            "label": "现金流",
+            "detail": "区分一次性影响"
+          }
+        ]
+      }
+    }
+  ],
+  "cues": [
+    {
+      "id": "c1",
+      "text": "虚构营收40亿元，内容付款28亿元。",
+      "startFrame": 0,
+      "endFrame": 120
+    },
+    {
+      "id": "c2",
+      "text": "虚构利润率从18%提高到26%。",
+      "startFrame": 120,
+      "endFrame": 240
+    },
+    {
+      "id": "c3",
+      "text": "接下来观察收入、内容付款与现金流。",
+      "startFrame": 240,
+      "endFrame": 360
+    }
+  ],
+  "events": [
+    {
+      "id": "revenue-in",
+      "sceneId": "comparison",
+      "cueId": "c1",
+      "targetId": "revenue",
+      "action": "reveal",
+      "offsetFrames": 0,
+      "durationFrames": 18,
+      "precision": "cue_start"
+    },
+    {
+      "id": "content-in",
+      "sceneId": "comparison",
+      "cueId": "c1",
+      "targetId": "content",
+      "action": "reveal",
+      "offsetFrames": 18,
+      "durationFrames": 18,
+      "precision": "cue_start"
+    },
+    {
+      "id": "watch-0",
+      "sceneId": "watch",
+      "cueId": "c3",
+      "targetId": "income",
+      "action": "reveal",
+      "offsetFrames": 0,
+      "durationFrames": 18,
+      "precision": "cue_start"
+    },
+    {
+      "id": "watch-1",
+      "sceneId": "watch",
+      "cueId": "c3",
+      "targetId": "payment",
+      "action": "reveal",
+      "offsetFrames": 18,
+      "durationFrames": 18,
+      "precision": "cue_start"
+    },
+    {
+      "id": "watch-2",
+      "sceneId": "watch",
+      "cueId": "c3",
+      "targetId": "cash",
+      "action": "reveal",
+      "offsetFrames": 36,
+      "durationFrames": 18,
+      "precision": "cue_start"
+    }
+  ],
+  "render": {
+    "theme": "studio-v1",
+    "visual": {
+      "preset": "warm-paper",
+      "motion": "subtle"
+    },
+    "crf": 20,
+    "audioId": null,
+    "normalization": null
+  },
+  "delivery": {
+    "cover": {
+      "headline": "盈利与现金流\n接下来看什么？",
+      "subtitle": "虚构数据 · 制作流程演示",
+      "series": "虚构财经观察"
+    }
+  },
+  "numericClaims": [
+    {
+      "id": "revenue",
+      "cueId": "c1",
+      "sceneId": "comparison",
+      "targetId": "revenue",
+      "value": 40,
+      "unit": "亿元",
+      "period": "Q3",
+      "scope": "虚构公司，演示口径",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "status": "actual"
+    },
+    {
+      "id": "content",
+      "cueId": "c1",
+      "sceneId": "comparison",
+      "targetId": "content",
+      "value": 28,
+      "unit": "亿元",
+      "period": "Q3",
+      "scope": "虚构公司，演示口径",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "status": "actual"
+    },
+    {
+      "id": "margin-q1",
+      "cueId": "c2",
+      "sceneId": "margin",
+      "targetId": "margin-line",
+      "value": 18,
+      "unit": "%",
+      "period": "Q1",
+      "scope": "虚构公司，演示口径",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "status": "actual"
+    },
+    {
+      "id": "margin-q3",
+      "cueId": "c2",
+      "sceneId": "margin",
+      "targetId": "margin-line",
+      "value": 26,
+      "unit": "%",
+      "period": "Q3",
+      "scope": "虚构公司，演示口径",
+      "sourceIds": [
+        "synthetic"
+      ],
+      "status": "actual"
+    }
+  ]
+}

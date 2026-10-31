@@ -3,6 +3,8 @@ import {type ProductionProject,type Scene} from './manifest.js';
 import {sceneState,type SceneState} from './scene-state.js';
 import {designTokens as t} from './design.js';
 import {labels} from './locales.js';
+import {portraitSceneHtml} from './portrait.js';
+import {applyVisualProfile} from './visual-profile.js';
 export const escapeHtml=(value:unknown)=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const n=(x:number)=>new Intl.NumberFormat('en',{maximumFractionDigits:2}).format(x);
 function text(x:number,y:number,value:unknown,size=28,extra=''):string {return `<text data-fit x="${x}" y="${y}" font-size="${size}" ${extra}>${escapeHtml(value)}</text>`;}
@@ -37,7 +39,7 @@ function chart(scene:Scene,state:SceneState,lang:ProductionProject['contentLangu
   case 'evidence':return group(scene.data.id,text(0,60,l.evidence,26,`fill="${t.accent}"`)+wrap(scene.data.text,58).map((s,i)=>text(0,150+i*48,s,34)).join(''));
  }
 }
-export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
+function landscapeSceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
  if(project.render.theme==='broadcast-v1')return broadcastSceneHtml(project,sceneId,frame,fontCss,visualAssets);
  const state=sceneState(project,sceneId,frame),scene=project.scenes.find(s=>s.id===sceneId)!,l=labels[project.contentLanguage];
  const sources=[...new Set([...scene.sourceIds,...(scene.template==='evidence'?[scene.data.sourceId]:[])])].map(id=>project.sources.find(s=>s.id===id)!.citation).join(' · ');
@@ -46,6 +48,10 @@ export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,
   return `<!doctype html><html><head><style>${fontCss}body{margin:0;background:${t.background};color:${t.ink};font-family:"Noto Sans SC";width:1920px;height:1080px}h1{position:absolute;left:96px;top:80px;font-size:50px}.caption{position:absolute;left:144px;top:900px;width:1632px;font-size:36px;text-align:center}</style></head><body><h1 data-fit>${escapeHtml(scene.title)}</h1>${cards}<div data-fit style="position:absolute;left:96px;top:810px;font-size:20px">${escapeHtml(sources)}</div>${state.caption?`<div data-fit class="caption">${escapeHtml(state.caption)}</div>`:''}</body></html>`;
  }
  return `<!doctype html><html lang="${project.contentLanguage}"><head><meta charset="utf-8"><style>${fontCss}*{box-sizing:border-box}html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:${t.background};color:${t.ink};font-family:"Noto Sans SC",sans-serif}svg{position:absolute;inset:0;fill:currentColor;font-family:inherit}h1{position:absolute;left:96px;top:88px;width:1728px;margin:0;font-size:50px;line-height:1.5}header{position:absolute;left:96px;top:38px;font-size:22px;letter-spacing:3px;color:${t.accent}}.caption{position:absolute;left:144px;top:880px;width:1632px;max-height:132px;padding:14px 28px;background:#172b3e;border-radius:12px;text-align:center;font-size:36px;line-height:1.4}.source{position:absolute;left:96px;top:810px;width:1728px;font-size:20px;line-height:1.4;color:${t.muted};max-height:56px;overflow:hidden}</style></head><body><header data-fit>${project.fictional?l.fictional:escapeHtml(project.id)} · ${escapeHtml(String(project.scenes.indexOf(scene)+1).padStart(2,'0'))}</header><h1 data-fit>${escapeHtml(scene.title)}</h1><svg width="1920" height="1080" viewBox="0 0 1920 1080"><g transform="translate(112 200)">${chart(scene,state,project.contentLanguage)}</g></svg>${sources?`<div data-fit class="source">${l.source} · ${escapeHtml(sources)}</div>`:''}${state.caption?`<div data-fit class="caption">${escapeHtml(state.caption)}</div>`:''}</body></html>`;
+}
+
+export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
+ return project.width===1080?portraitSceneHtml(project,sceneId,frame,fontCss):applyVisualProfile(landscapeSceneHtml(project,sceneId,frame,fontCss,variant,visualAssets),project,frame);
 }
 
 

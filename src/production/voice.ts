@@ -16,9 +16,9 @@ export function voiceChunks(text:string,language:'en'|'zh'):string[]{
   }if(remaining)chunks.push(remaining);
  }return chunks;
 }
-export function padVoiceClip(file:string,output:string,frames:number):void {
- if(!Number.isInteger(frames)||frames<1||frames>108000)throw new Error('invalid_voice_frames');
- const encoded=mediaTool('ffmpeg',['-v','error','-i',file,'-af',`apad,atrim=duration=${frames/30}`,'-ar','48000','-c:a','pcm_s16le',output]);if(!encoded.ok)throw new ToolUnavailableError(`voice_padding_failed:${encoded.stderr}`);
+export function padVoiceClip(file:string,output:string,frames:number,fps:30|60=30):void {
+ if((fps!==30&&fps!==60)||!Number.isInteger(frames)||frames<1||frames>fps*3600)throw new Error('invalid_voice_frames');
+ const encoded=mediaTool('ffmpeg',['-v','error','-i',file,'-af',`apad,atrim=duration=${frames/fps}`,'-ar','48000','-c:a','pcm_s16le',output]);if(!encoded.ok)throw new ToolUnavailableError(`voice_padding_failed:${encoded.stderr}`);
 }
 const script=fileURLToPath(new URL('../../scripts/sapi.ps1',import.meta.url));
 function sapi(args:string[]):string {
@@ -40,7 +40,7 @@ export async function generateVoice(manifestFile:string,options:{voice:string;ou
  for(const [i,clip] of clips.entries()){
   const result=mediaTool('ffprobe',['-v','error','-show_entries','format=duration','-of','json',clip.file]);if(!result.ok)throw new ToolUnavailableError('voice_probe_failed');
   const seconds=Number((JSON.parse(result.stdout) as {format:{duration:string}}).format.duration);if(!Number.isFinite(seconds)||seconds<=0)throw new Error('invalid_voice_duration');
-  const frames=Math.ceil(seconds*30),alignedFile=path.join(options.output,`aligned-${String(i).padStart(4,'0')}.wav`);padVoiceClip(clip.file,alignedFile,frames);measured.push({...clip,alignedFile,seconds,frames,sha256:await hashFile(clip.file)});
+  const frames=Math.ceil(seconds*snapshot.project.fps),alignedFile=path.join(options.output,`aligned-${String(i).padStart(4,'0')}.wav`);padVoiceClip(clip.file,alignedFile,frames,snapshot.project.fps);measured.push({...clip,alignedFile,seconds,frames,sha256:await hashFile(clip.file)});
   // This is a measured proposal. It does not replace existing cues or claim word alignment.
   proposedCues.push({id:`voice-${i}`,text:clip.text,startFrame:from,endFrame:from+frames});from+=frames;
  }
