@@ -1,10 +1,11 @@
 import {z} from 'zod';
 import path from 'node:path';
+import {numericClaimSchema,validateClaimLinks} from './evidence-ledger.js';
 
 export const idSchema=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/);
 const text=(max:number)=>z.string().trim().min(1).max(max);
 const number=z.number().finite().min(-1e15).max(1e15);
-const frame=z.number().int().min(0).max(108000);
+const frame=z.number().int().min(0).max(216000);
 export function isInputPath(value:string):boolean {
  return !path.posix.isAbsolute(value)&&!path.win32.isAbsolute(value)&&!value.includes('\\')&&
   !value.includes(':')&&value.startsWith('inputs/')&&value.split('/').every(p=>p!==''&&p!=='.'&&p!=='..');
@@ -29,8 +30,9 @@ const sceneSchema=z.discriminatedUnion('template',[
 ]);
 const cueSchema=z.object({id:idSchema,text:text(180),startFrame:frame,endFrame:frame.min(1)}).strict();
 const eventSchema=z.object({id:idSchema,sceneId:idSchema,cueId:idSchema,targetId:idSchema,action:z.enum(['reveal','highlight','compare','annotate']),offsetFrames:z.number().int().min(-108000).max(108000),durationFrames:z.number().int().min(1).max(300),precision:z.enum(['cue_start','manually_aligned','unresolved'])}).strict();
-const renderSchema=z.object({theme:z.enum(['studio-v1','broadcast-v1']),broadcast:z.object({programName:text(80),backgroundVideoId:idSchema.optional()}).strict().optional(),crf:z.number().int().min(0).max(40),audioId:idSchema.nullable(),normalization:z.object({targetLufs:z.number().min(-30).max(-10),truePeak:z.number().min(-6).max(-.1)}).strict().nullable(),backgroundAudioId:idSchema.optional()}).strict();
-export const manifestSchema=z.object({schemaVersion:z.literal(2),id:idSchema,title:text(120),contentLanguage:z.enum(['en','zh']),fictional:z.boolean(),fps:z.literal(30),width:z.literal(1920),height:z.literal(1080),durationFrames:frame.min(1),
+const renderSchema=z.object({theme:z.enum(['studio-v1','broadcast-v1']),visual:z.object({preset:z.enum(['warm-paper','navy']),motion:z.enum(['static','subtle'])}).strict().optional(),broadcast:z.object({programName:text(80),backgroundVideoId:idSchema.optional()}).strict().optional(),crf:z.number().int().min(0).max(40),audioId:idSchema.nullable(),normalization:z.object({targetLufs:z.number().min(-30).max(-10),truePeak:z.number().min(-6).max(-.1)}).strict().nullable(),backgroundAudioId:idSchema.optional()}).strict();
+export const manifestSchema=z.object({schemaVersion:z.literal(2),id:idSchema,title:text(120),contentLanguage:z.enum(['en','zh']),fictional:z.boolean(),fps:z.union([z.literal(30),z.literal(60)]),width:z.union([z.literal(1920),z.literal(1080)]),height:z.union([z.literal(1080),z.literal(1440)]),durationFrames:frame.min(1),
+ numericClaims:z.array(numericClaimSchema).max(20000).optional(),
  internalNotes:z.array(z.object({id:idSchema,text:text(4000)}).strict()).max(500).optional(),
  delivery:z.object({cover:z.object({headline:text(80),subtitle:text(120),series:text(80),imageId:idSchema.optional(),imageLabel:text(120).optional()}).strict()}).strict().optional(),
  inputs:z.array(inputSchema).max(2000),sources:z.array(sourceSchema).max(1000),manuscript:z.array(blockSchema).min(1).max(500),scenes:z.array(sceneSchema).min(1).max(500),cues:z.array(cueSchema).max(20000),events:z.array(eventSchema).max(50000),render:renderSchema,reviewPath:text(1024).optional()}).strict();
@@ -54,6 +56,10 @@ export function targetIds(scene:Scene):string[] {
 function unique(ids:string[],kind:string):void {if(new Set(ids).size!==ids.length)throw new Error(`duplicate_${kind}_id`);}
 export function parseProject(value:unknown):ProductionProject {
  const p=manifestSchema.parse(value);
+ if(!((p.width===1920&&p.height===1080&&p.fps===30)||(p.width===1080&&p.height===1440&&p.fps===60)))throw new Error('unsupported_output_profile');
+ if(p.durationFrames>p.fps*3600)throw new Error('duration_limit');
+ if(p.width===1080&&p.render.broadcast?.backgroundVideoId)throw new Error('portrait_background_video_unsupported');
+ if(p.width===1080&&p.scenes.some(s=>s.presentation?.evidencePanels?.length))throw new Error('portrait_evidence_panels_unsupported');
  for(const [kind,items] of Object.entries({input:p.inputs,source:p.sources,manuscript:p.manuscript,scene:p.scenes,cue:p.cues,event:p.events}))unique(items.map(x=>x.id),kind);
  const inputs=new Map(p.inputs.map(x=>[x.id,x])),sources=new Set(p.sources.map(x=>x.id));
  if(p.internalNotes)unique(p.internalNotes.map(x=>x.id),'internal_note');
@@ -95,5 +101,5 @@ export function parseProject(value:unknown):ProductionProject {
  end=0;for(const c of p.cues){if(c.startFrame<end||c.endFrame<=c.startFrame||c.endFrame>p.durationFrames)throw new Error(`invalid_cue:${c.id}`);end=c.endFrame;}
  const sceneMap=new Map(p.scenes.map(s=>[s.id,s])),cueMap=new Map(p.cues.map(c=>[c.id,c]));
  for(const e of p.events){const s=sceneMap.get(e.sceneId),c=cueMap.get(e.cueId);if(!s||!c)throw new Error(`event_reference:${e.id}`);if(!targetIds(s).includes(e.targetId))throw new Error(`event_target:${e.id}`);const from=c.startFrame+e.offsetFrames;if(from<s.from||from+e.durationFrames>s.from+s.durationFrames)throw new Error(`event_bounds:${e.id}`);}
- return p;
+ validateClaimLinks(p);return p;
 }

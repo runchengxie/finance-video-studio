@@ -33,7 +33,7 @@ npm run studio -- audit /absolute/project.json /absolute/new-audit.json
 npm run studio -- deliver /absolute/project.json /absolute/approved-review.json /absolute/completed-build /absolute/new-delivery
 ```
 
-命令要求当前精确快照的有效批准、对应快照的完整成功 `build.json`（含工具、匹配的分段编号及成功校验），以及哈希匹配的 `final.mp4`。它会按项目规格重新探测并完整解码视频，复制后再次检查文件、当前输入和批准。构建记录属于可信本地资料，不是能证明每个像素含义的签名凭证，仍须查看实际成片。命令不渲染、不修复构建、不批准内容、不发布，也不直接接受一个独立 MP4。原生 v2 视频仍为 1920×1080、30 fps；历史竖版自定义适配器不会自动迁移。
+命令要求当前精确快照的有效批准、对应快照的完整成功 `build.json`（含工具、匹配的分段编号及成功校验），以及哈希匹配的 `final.mp4`。它会按项目规格重新探测并完整解码视频，复制后再次检查文件、当前输入和批准。构建记录属于可信本地资料，不是能证明每个像素含义的签名凭证，仍须查看实际成片。命令不渲染、不修复构建、不批准内容、不发布，也不直接接受一个独立 MP4。原生 v2 支持 1920×1080/30 与 1080×1440/60，详见[竖版与审阅](production-advanced.md)。历史自定义适配器不会自动迁移。
 
 新目录包含以下内容。
 

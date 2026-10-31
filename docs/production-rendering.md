@@ -2,7 +2,7 @@
 
 Use the [production workflow](production-workflow.md) for the operator checklist, numeric visuals and formal delivery presentation.
 
-The v2 renderer supports six original templates at 1920×1080 and 30 fps. Manuscript, cues, chart data, sources, input hashes and renderer revisions form one editorial snapshot. V1 commands and reviews remain separate.
+The v2 renderer supports landscape 1920×1080 at 30 fps and native portrait 1080×1440 at 60 fps. See [portrait production and review](production-advanced.md) for layouts, evidence and reusable scene caches. Manuscript, cues, chart data, sources, input hashes and renderer revisions form one editorial snapshot. V1 commands and reviews remain separate.
 
 Use the [editorial review brief](editorial-review.md) for premise checks, dated evidence and prose revision before submitting a complete snapshot for approval. Keep its substantive review notes with the external project.
 

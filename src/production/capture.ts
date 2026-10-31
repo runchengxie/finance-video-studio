@@ -9,6 +9,7 @@ export async function capturePage():Promise<{page:Page;font:string;close:()=>Pro
  await page.route('**/*',route=>route.abort());return {page,font,close:()=>browser.close()};
 }
 export async function paint(page:Page,font:string,p:ProductionProject,sceneId:string,frame:number,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):Promise<void>{
+ await page.setViewportSize({width:p.width,height:p.height});
  const markup=sceneHtml(p,sceneId,frame,loaded.has(page)?'':font,variant,visualAssets);
  if(!loaded.has(page)){await page.setContent(markup);loaded.add(page);}
  else await page.evaluate(html=>{const doc=new DOMParser().parseFromString(html,'text/html');const style=doc.querySelector('style')!.textContent!;let dynamic=document.querySelector('#production-style');if(!dynamic){dynamic=document.createElement('style');dynamic.id='production-style';document.head.append(dynamic);}dynamic.textContent=style;document.body.innerHTML=doc.body.innerHTML;},markup);
@@ -19,7 +20,7 @@ export async function paint(page:Page,font:string,p:ProductionProject,sceneId:st
   for(const el of Array.from(document.querySelectorAll('[data-fit]'))){if(!el.getClientRects().length)continue;const r=el.getBoundingClientRect();
    const region=el.parentElement?.closest('[data-region]')?.getBoundingClientRect();
    if(region&&(r.left<region.left-1||r.top<region.top-1||r.right>region.right+1||r.bottom>region.bottom+1))issues.push(`region_overflow:${el.textContent}`);
-   if(r.left<0||r.top<0||r.right>1920||r.bottom>1080||el instanceof HTMLElement&&(el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1))issues.push(`overflow:${el.textContent}`);
+   if(r.left<0||r.top<0||r.right>innerWidth||r.bottom>innerHeight||el instanceof HTMLElement&&(el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1))issues.push(`overflow:${el.textContent}`);
    if(caption&&el.closest('svg')&&r.bottom>caption.top&&r.top<caption.bottom)issues.push(`caption_collision:${el.textContent}`);
   }
   for(const svg of Array.from(document.querySelectorAll('svg'))){

@@ -15,7 +15,7 @@ export async function assemble(project:ProductionProject,manifest:string,segment
   if(project.render.normalization)filter+=`,loudnorm=I=${project.render.normalization.targetLufs}:TP=${project.render.normalization.truePeak}:LRA=11`;
   args.push('-filter_complex',`${filter}[audio]`,'-map','[audio]','-c:a','aac','-b:a','192k','-ar','48000');
  }else args.push('-an');
- args.push('-map_metadata',String(metaIndex),'-map_chapters',String(metaIndex),'-c:v','copy','-t',String(project.durationFrames/30),'-movflags','+faststart');
+ args.push('-map_metadata',String(metaIndex),'-map_chapters',String(metaIndex),'-c:v','copy','-bsf:v','h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1:video_full_range_flag=0','-t',String(project.durationFrames/project.fps),'-movflags','+faststart');
  const temp=path.join(output,'assembled.partial.mp4'),final=path.join(output,'video.mp4');const encoded=mediaTool('ffmpeg',[...args,temp]);if(!encoded.ok)throw new Error(`assembly_failed:${encoded.stderr.slice(-2000)}`);
  // Hard-link publication is atomic and fails if the destination already exists.
  await link(temp,final);await unlink(temp);return final;

@@ -33,7 +33,7 @@ After an approved native render, make a complete package:
 npm run studio -- deliver /absolute/project.json /absolute/approved-review.json /absolute/completed-build /absolute/new-delivery
 ```
 
-`deliver` requires current exact-snapshot approval, a complete successful native `build.json` for that snapshot (including tools, matching stage IDs and successful verification), and a matching `final.mp4` hash. It independently probes and fully decodes the video against the manifest specification, then checks copied media, current inputs and approval again. Build records are trusted local artifacts, not signed attestations that prove the meaning of every encoded pixel; inspect the actual result. The command does not render or publish videos, repair a build, approve content, or accept a standalone MP4. Native v2 remains 1920×1080 at 30 fps; legacy custom portrait adapters are not automatically migrated.
+`deliver` requires current exact-snapshot approval, a complete successful native `build.json` for that snapshot (including tools, matching stage IDs and successful verification), and a matching `final.mp4` hash. It independently probes and fully decodes the video against the manifest specification, then checks copied media, current inputs and approval again. Build records are trusted local artifacts, not signed attestations that prove the meaning of every encoded pixel; inspect the actual result. The command does not render or publish videos, repair a build, approve content, or accept a standalone MP4. Native v2 supports 1920×1080/30 and 1080×1440/60; see [portrait and review](production-advanced.md). Legacy custom adapters are not automatically migrated.
 
 The new directory contains:
 

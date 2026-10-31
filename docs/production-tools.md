@@ -19,7 +19,7 @@ npm run studio -- timeline /absolute/project-revision.json /absolute/new-timelin
 
 Doctor is read-only: it hashes actual inputs, validates the project, checks unresolved events and probes configured FFmpeg/ffprobe plus the pinned browser/font. It does not inspect or grant editorial approval. Optional root configuration comes only from the explicitly supplied workspace TOML or `CODE_ROOT`, `DATA_ROOT`, `CONFIG_ROOT`; none is required for explicit project paths.
 
-Timeline export creates SRT, per-scene ASS, chapter metadata and a storyboard in a fresh directory. SRT imports floor cue starts and ceil cue ends to 30fps; any overlap created by rounding is rejected with affected IDs. ASS text neutralizes literal backslashes and braces with full-width glyphs, preventing override instructions; authored line breaks remain visible.
+Timeline export creates SRT, per-scene ASS, chapter metadata and a storyboard in a fresh directory. SRT imports floor cue starts and ceil cue ends to the selected 30 or 60 fps time base; any overlap created by rounding is rejected with affected IDs. ASS text neutralizes literal backslashes and braces with full-width glyphs, preventing override instructions; authored line breaks remain visible.
 
 ## Verify an existing video
 
