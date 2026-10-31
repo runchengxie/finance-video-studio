@@ -1,0 +1,1 @@
+export const deliveryLabels={en:{series:'FINANCIAL ANALYSIS',subtitle:'Results, cash flow and what to watch',fictional:'FICTIONAL EXAMPLE'},zh:{series:'财经观察',subtitle:'财报、现金流与后续观察',fictional:'虚构示例'}} as const;

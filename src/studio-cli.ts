@@ -11,11 +11,15 @@ import {loadProductionReview,saveProductionReview} from './production/review-io.
 import {renderProduction,renderVoicedProductionDemo,renderBroadcastDemo} from './production/render.js';
 import {generateVoice,localVoices} from './production/voice.js';
 import {adaptHistorical} from './production/adapt.js';
+import {auditProduction} from './production/preflight.js';
+import {packageDelivery} from './production/delivery.js';
 
 const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
 try{
  switch(command){
+  case 'audit':if(args.length!==2)throw new Error('invalid_arguments: audit MANIFEST NEW_REPORT');await assertOutput(required(0),required(1));await writeJson(required(1),auditProduction(await readProject(required(0))));break;
+  case 'deliver':if(args.length!==4)throw new Error('invalid_arguments: deliver MANIFEST REVIEW BUILD NEW_OUTPUT');console.log(JSON.stringify(await packageDelivery(required(0),required(1),required(2),required(3))));break;
   case 'broadcast-demo':if(args.length!==1)throw new Error('fixed_demo_output_only');await renderBroadcastDemo(required(0));break;
   case 'adapt':if(args.length!==3||!['fixed-sample','full-timeline','external-audio'].includes(required(0)))throw new Error('invalid_adaptation_arguments');console.log(JSON.stringify(await adaptHistorical(required(0) as 'fixed-sample'|'full-timeline'|'external-audio',required(1),required(2))));break;
   case 'voices':if(args.length)throw new Error('invalid_arguments');console.log(JSON.stringify(localVoices()));break;

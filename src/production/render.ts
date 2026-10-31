@@ -21,9 +21,11 @@ import {hashFile} from './project-io.js';
 import {productionDemoFixture,type DemoVariant} from './demo.js';
 import type {EditorialSnapshot} from './snapshot.js';
 import {generateVoice} from './voice.js';
+import {assertAudienceReady} from './preflight.js';
 export type BuildReport={ok:boolean;inputHash:string;tools:Record<string,string>;stages:{id:string;hit:boolean;reason:string;milliseconds:number}[];milliseconds:number;verification:VerificationReport|null;failure:string|null};
 export async function renderProduction(manifestFile:string,reviewFile:string,output:string,cache:string):Promise<BuildReport>{
  const snapshot=await snapshotProject(manifestFile),review=await loadProductionReview(reviewFile);assertProductionApproved(snapshot,review);
+ assertAudienceReady(snapshot.project);
  return renderBuild(manifestFile,snapshot,output,cache,async()=>{assertProductionBuildApproved(snapshot,await snapshotProject(manifestFile),await loadProductionReview(reviewFile));});
 }
 export async function renderProductionDemo(output:string,variant:DemoVariant):Promise<void>{
