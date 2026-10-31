@@ -1,0 +1,4 @@
+interface:
+  display_name: "Finance Video Production"
+  short_description: "Build finance videos with reviewed visuals and complete delivery"
+  default_prompt: "Use $finance-video-production to prepare this narration as a finance video with reviewed subtitles, numeric visuals and both cover formats."

@@ -1,5 +1,7 @@
 # Finance video production workflow
 
+Use [preflight and complete delivery](production-delivery.md) for implemented audit, internal-note separation and dual-cover packaging commands.
+
 Use this checklist for real projects alongside the [rendering commands](production-rendering.md) and [editorial brief](editorial-review.md). It is an operator workflow, not a claim that every step is enforced by the CLI. Keep project media and records in the owning project's external data directory.
 
 ## Preserve inputs and establish the timeline
