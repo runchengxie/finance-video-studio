@@ -1,6 +1,6 @@
 # 验证记录
 
-[English](validation.md)
+[English](https://runchengxie.github.io/finance-video-studio/validation/)
 
 ## 依赖兼容性（2026-11-05）
 

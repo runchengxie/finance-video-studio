@@ -1,6 +1,6 @@
 # Validation records
 
-[简体中文](validation.zh.md)
+[简体中文](https://runchengxie.github.io/finance-video-studio/zh/validation/)
 
 ## Dependency compatibility (2026-11-05)
 
