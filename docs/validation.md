@@ -1,4 +1,16 @@
-# First-version validation
+# Validation records
+
+[简体中文](validation.zh.md)
+
+## Dependency compatibility (2026-11-05)
+
+Direct npm dependencies and the documentation lock are updated to current compatible stable releases. TypeScript remains on 6.0.3 because typescript-eslint 8.72.1 declares `>=4.8.4 <6.1.0`; TypeScript 7 is outside that supported range. Node type definitions stay on the latest 24.x release to match the Node 24 runtime. Playwright 1.64.1 and csv-parse 7.0.3 are already current.
+
+The registry audit still reports a moderate minimatch advisory ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)) in the ESLint development dependency tree. The current upstream ranges select minimatch 10.2.6; the advisory requires 11.0.1. No unsupported major override is applied. This does not affect the production dependency audit.
+
+Validation passed with Node 24.22.2 and system FFmpeg 8.1.2: `npm run check`, all 101 tests, both pinned-Chromium smoke cases, the fixed synthetic review example, and the strict bilingual documentation build. The production dependency audit reported zero vulnerabilities. Generated evidence remains outside Git.
+
+## First-version validation
 
 Local validation on 2026-10-17 used Node 24.19.0, the locked Playwright Chromium 156.0.8078.4 (revision 1248), Noto Sans SC 5.2.8, and external FFmpeg 9.0.2.
 

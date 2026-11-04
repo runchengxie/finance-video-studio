@@ -1,4 +1,16 @@
-# 第一版验证记录
+# 验证记录
+
+[English](validation.md)
+
+## 依赖兼容性（2026-11-05）
+
+npm 直接依赖及文档依赖锁已更新到兼容的最新稳定版。TypeScript 保留 6.0.3，因为 typescript-eslint 8.72.1 声明支持 `>=4.8.4 <6.1.0`，尚不支持 TypeScript 7。Node 类型定义使用最新 24.x 版，与 Node 24 运行环境一致。Playwright 1.64.1 和 csv-parse 7.0.3 已是最新版。
+
+依赖审计仍报告 ESLint 开发依赖中的 minimatch 中危漏洞（[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)）。上游当前版本范围选择 minimatch 10.2.6，修复版本为 11.0.1；本次未强制覆盖为上游未声明兼容的大版本。生产依赖审计不受此问题影响。
+
+在 Node 24.22.2 与系统 FFmpeg 8.1.2 下，`npm run check`、全部 101 项测试、两种锁定 Chromium 的烟雾测试、固定合成审阅示例及中英文文档严格构建均通过。生产依赖审计未发现漏洞。生成的验证材料保存在 Git 仓库之外。
+
+## 第一版验证记录
 
 以下保留 2026-10-17 的本机验证结果，不表示之后每一版本都重新完成了这些检查。当时使用 Node 24.19.0、锁定的 Playwright Chromium 156.0.8078.4（revision 1248）、Noto Sans SC 5.2.8 和外部 FFmpeg 9.0.2。
 
