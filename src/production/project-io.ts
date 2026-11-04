@@ -18,12 +18,14 @@ export async function readProject(file:string):Promise<ProductionProject> {
 export async function writeJson(file:string,value:unknown):Promise<void> {
  await assertExternal(file);await mkdir(path.dirname(file),{recursive:true});await writeFile(file,JSON.stringify(value,null,2)+'\n',{flag:'wx'});
 }
-export async function initializeProject(directory:string):Promise<void> {
+export async function initializeProject(directory:string,profile:'portrait-explainer-v1'|'legacy-landscape'='portrait-explainer-v1'):Promise<void> {
+ if(!['portrait-explainer-v1','legacy-landscape'].includes(profile))throw new Error('unknown_production_profile');
  await assertExternal(directory);await mkdir(path.dirname(directory),{recursive:true});await mkdir(directory);
  for(const name of ['inputs','reviews','builds'])await mkdir(path.join(directory,name));
  const id='project-'+randomUUID().slice(0,8);
  const project:ProductionProject={schemaVersion:2,id,title:'Pending draft',contentLanguage:'en',fictional:false,fps:30,width:1920,height:1080,durationFrames:90,inputs:[],sources:[],
   manuscript:[{id:'draft',text:'Replace this draft and obtain editorial approval.',sourceIds:[]}],scenes:[{id:'draft',from:0,durationFrames:90,title:'Pending draft',template:'metric',sourceIds:[],data:{id:'value',label:'Pending value',value:0,unit:'Specify unit'}}],cues:[],events:[],render:{theme:'studio-v1',crf:20,audioId:null,normalization:null}};
+ if(profile==='portrait-explainer-v1'){project.width=1080;project.height=1440;project.fps=60;project.durationFrames=180;project.scenes[0]!.durationFrames=180;project.render={...project.render,theme:'broadcast-v1',broadcast:{programName:'Financial analysis'},visual:{preset:'warm-paper',motion:'subtle'}};project.productionProfile={id:'portrait-explainer-v1',audioEdit:{decision:'pending'}};}
  await writeJson(path.join(directory,'project.json'),project);
  await writeFile(path.join(directory,'README.md'),'# Pending production project\n\nImport licensed inputs, replace the draft, run doctor, and obtain current human review before rendering.\n',{flag:'wx'});
 }
@@ -35,17 +37,20 @@ export async function importAsset(manifestFile:string,source:string,inputId:stri
  await assertOutput(manifestFile,operation);await mkdir(operation,{recursive:true});
  await writeJson(path.join(operation,'started.json'),{operationId,inputId,source,status:'started',startedAt:new Date().toISOString()});
  const digest=await hashFile(source),ext=path.extname(source).toLowerCase();
- const relative=`inputs/${inputId}-${operationId}${/^[.][a-z0-9]{1,8}$/.test(ext)?ext:'.bin'}`;
+ const mediaType=/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(ext)?'audio':/\.(json|csv)$/i.test(ext)?'data':/\.(png|jpe?g)$/i.test(ext)?'image':/\.(mp4|mov|webm)$/i.test(ext)?'video':'evidence';
+ const existing=p.inputs.find(x=>x.sha256===digest&&x.mediaType===mediaType);
+ if(existing){const {resolveInput}=await import('./paths.js');if(await hashFile(await resolveInput(manifestFile,existing.path))!==digest)throw new Error(`input_hash_mismatch:${existing.id}`);}
+ const relative=existing?.path??`inputs/${inputId}-${operationId}${/^[.][a-z0-9]{1,8}$/.test(ext)?ext:'.bin'}`;
  const destination=path.join(root,relative);await assertOutput(manifestFile,operation);
  // resolve the target's existing ancestor as well; an inputs junction cannot redirect the copy.
  const {actualPath,within}=await import('./paths.js');
  if(!within(await actualPath(root),await actualPath(destination)))throw new Error('input_root_escape');
- await copyFile(source,destination,constants.COPYFILE_EXCL);
+ if(!existing)await copyFile(source,destination,constants.COPYFILE_EXCL);
  const copied=await hashFile(destination);if(copied!==digest)throw new Error('input_changed_during_copy');
- const mediaType=/\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(ext)?'audio':/\.(json|csv)$/i.test(ext)?'data':/\.(png|jpe?g)$/i.test(ext)?'image':/\.(mp4|mov|webm)$/i.test(ext)?'video':'evidence';
+
  const next=parseProject({...p,reviewPath:undefined,inputs:[...p.inputs,{id:inputId,path:relative,mediaType,sha256:copied,provenance:`Imported from ${source}`,rights:'Operator-imported; confirm usage rights during editorial review'}]});
  const revision=path.join(root,`project-${operationId}.json`);await writeJson(revision,next);
- await writeJson(path.join(operation,'completed.json'),{operationId,inputId,source,destination:relative,sha256:copied,revision:path.basename(revision),status:'completed'});
+ await writeJson(path.join(operation,'completed.json'),{operationId,inputId,source,destination:relative,sha256:copied,revision:path.basename(revision),status:'completed',reused:!!existing,...(existing?{reusedInputId:existing.id}:{})});
  return revision;
 }
 export type WorkspaceRoots={codeRoot?:string;dataRoot?:string;configRoot?:string};

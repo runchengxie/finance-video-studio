@@ -23,7 +23,7 @@ test('narration alignment isolates insertions, timing and financial changes with
 test('changed audio hash with equal transcript requires retranscription and duration metadata is compared',async t=>{
  const root=await mkdtemp(path.join(tmpdir(),'narration-audio-'));t.after(()=>rm(root,{recursive:true,force:true}));await initializeProject(path.join(root,'p'));
  const p=await readProject(path.join(root,'p/project.json'));const before={...p,inputs:[{id:'voice',path:'inputs/voice.wav',mediaType:'audio',sha256:'a'.repeat(64),provenance:'Original',rights:'Owned'}],render:{...p.render,audioId:'voice'}};
- const after={...before,inputs:[{...before.inputs[0]!,sha256:'b'.repeat(64)}],durationFrames:120,scenes:[{...p.scenes[0]!,durationFrames:120}]};
+ const after={...before,inputs:[{...before.inputs[0]!,sha256:'b'.repeat(64)}],durationFrames:p.fps*4,scenes:[{...p.scenes[0]!,durationFrames:p.fps*4}]};
  const a=path.join(root,'a.json'),b=path.join(root,'b.json');await writeFile(a,JSON.stringify(before));await writeFile(b,JSON.stringify(after));const report=await compareNarrations(a,b,path.join(root,'out'));
  assert.equal(report.voice.requiresRetranscription,true);assert.equal(report.duration.changed,true);assert.equal(report.duration.afterSeconds,4);
 });

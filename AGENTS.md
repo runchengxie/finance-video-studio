@@ -11,3 +11,7 @@ Also run `npm run review:example -- <empty-external-directory>` for review/rende
 For real video production, follow the [production workflow](docs/production-workflow.md). Formal MP4 delivery excludes internal review notes by default; retain audience-relevant sources, units, periods and material limitations. Keep review records separate and bind the delivery presentation to the approved snapshot.
 
 When preparing, reviewing or revising video manuscripts for this project, read and apply [the editorial review brief](docs/editorial-review.md), including the [Chinese prompt](docs/editorial-review.zh.md) for Chinese content. Check the question's premises, evidence scope and useful academic/practitioner objections before polishing language. Retain dated sources and a separate change note with unresolved issues. Preserve originals. A writing-rule checker or model review never grants factual verification or rendering approval.
+
+# Production profile and project skill
+
+Before initializing or resuming a video, read `skills/finance-video-production/SKILL.md` and `docs/production-profile.md`. The versioned `portrait-explainer-v1` profile defines the new-project defaults; legacy manifests need an explicit format, motion and audio-edit check. Preserve source audio and bind episode-specific edits in the manifest. Keep one owning episode input directory across revisions; never assume retaining the voice means retaining service introductions or outro music.

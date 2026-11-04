@@ -1,0 +1,4 @@
+export const previewLabels={
+ en:{title:'Live production preview',notice:'Internal inspection only. Native frames follow the audio time; this is not an encoded MP4, factual certification, human listening or rendering approval.',language:'Language',chapters:'Scenes',cues:'Narration cues',search:'Search narration',sources:'Sources',source:'Original source audio',cuts:'Source cut proposal',intro:'Play original introduction',outro:'Play original ending',trimNotice:'Check the actual speech boundaries. The source interval declaration is not human listening or approval.',snapshot:'Snapshot'},
+ zh:{title:'实时制作预览',notice:'仅供内部检查。原生画面跟随音频时间实时绘制，本页不代表已编码MP4、事实认证、真人听校或渲染批准。',language:'语言',chapters:'分镜',cues:'旁白字幕',search:'搜索旁白',sources:'来源',source:'原始音轨',cuts:'原音裁剪提案',intro:'播放原始片头',outro:'播放原始片尾',trimNotice:'请检查实际语句边界。保留区间的声明不代表真人听校或批准。',snapshot:'快照'}
+} as const;

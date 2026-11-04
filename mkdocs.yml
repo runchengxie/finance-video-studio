@@ -56,6 +56,7 @@ plugins:
             Manuscript review: 文稿审阅
             Editorial review brief: 稿件审阅提示词
             Production tools: 制作工具
+            Production profile: 制作规范
             Production rendering: 视频生成
             Production workflow: 制作流程
             Complete delivery: 完整交付
@@ -74,6 +75,7 @@ nav:
   - Manuscript review: manuscript-review.md
   - Editorial review brief: editorial-review.md
   - Production tools: production-tools.md
+  - Production profile: production-profile.md
   - Production rendering: production-rendering.md
   - Production workflow: production-workflow.md
   - Complete delivery: production-delivery.md
