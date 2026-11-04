@@ -31,7 +31,7 @@ screen.onload=()=>{resize();last=-1;draw();};screen.srcdoc='<link rel="styleshee
 if(record.audioUrl){voice.src=record.audioUrl;voice.onloadedmetadata=()=>{if(pendingSeek!==null){voice.currentTime=pendingSeek/p.fps;pendingSeek=null;}last=-1;draw();};voice.onseeked=()=>{last=-1;draw();};voice.onplay=()=>source.pause();}else voice.hidden=true;
 const edit=p.productionProfile?.audioEdit;
 if(record.sourceAudioUrl&&edit?.decision==='trim'){
- source.src=record.sourceAudioUrl;for(const id of ['intro','outro'])document.querySelector<HTMLButtonElement>('#'+id)!.disabled=true;source.onloadedmetadata=()=>{for(const id of ['intro','outro'])document.querySelector<HTMLButtonElement>('#'+id)!.disabled=false;};document.querySelector('#cut-interval')!.textContent=edit.startSeconds+' – '+edit.endSeconds+' s';
+ source.src=record.sourceAudioUrl;source.onplay=()=>voice.pause();for(const id of ['intro','outro'])document.querySelector<HTMLButtonElement>('#'+id)!.disabled=true;source.onloadedmetadata=()=>{for(const id of ['intro','outro'])document.querySelector<HTMLButtonElement>('#'+id)!.disabled=false;};document.querySelector('#cut-interval')!.textContent=edit.startSeconds+' – '+edit.endSeconds+' s';
  const play=(from:number,to:number)=>{if(!source.readyState)return;voice.pause();source.currentTime=from;sourceStop=to;void source.play();};
  document.querySelector<HTMLButtonElement>('#intro')!.onclick=()=>play(0,Math.min(source.duration,edit.startSeconds+4));
  document.querySelector<HTMLButtonElement>('#outro')!.onclick=()=>play(Math.max(0,edit.endSeconds-5),source.duration);
