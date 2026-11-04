@@ -11,7 +11,7 @@ For native portrait, caches, numeric evidence and review pages, read `docs/produ
 
 ## Persistent defaults and resuming old work
 
-Read `docs/production-profile.md` before initializing or resuming an episode. New `studio init` projects use `portrait-explainer-v1`: 1080×1440/60, warm-paper broadcast, subtle background motion and cue-linked reveals. This versioned code profile is authoritative for those defaults; do not rely on chat memory. Read any explicitly configured `DATA_ROOT/finance-video-studio/production-preferences.json` for the owner's reference episode and local production context; it is not automatically read by the CLI.
+Read `docs/production-profile.md` before initializing or resuming an episode. New `studio init` projects use `portrait-explainer-v1`: 1080×1440/60, warm-paper broadcast, subtle background motion and cue-linked reveals. This versioned code profile is authoritative for those defaults; do not rely on chat memory. Read any explicitly configured `CONFIG_ROOT/projects/finance-video-studio/production-preferences.json` for the owner's reference episode and local production context; it is not automatically read by the CLI.
 
 An older manifest without `productionProfile` is legacy input, not evidence that its landscape dimensions or complete raw soundtrack are the owner's current preference. Resolve its profile warning before presenting resumed work as ready. Converting 30fps to 60fps requires retiming scenes, cues, events and chapters through seconds; changing only width/height/fps is wrong. Use an explicit new manifest revision and preserve old approvals with their source revisions.
 
