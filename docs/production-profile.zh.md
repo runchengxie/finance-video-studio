@@ -1,6 +1,6 @@
 # 固定制作规范
 
-[English](production-profile.md)
+[English](https://runchengxie.github.io/finance-video-studio/production-profile/)
 
 新工程默认使用版本化的 **`portrait-explainer-v1`**，即原生1080×1440、60fps、暖纸色栏目版式和轻微背景运动。默认值保存在代码和项目制作Skill中，具体机器路径与私人参考片留在仓库外。
 

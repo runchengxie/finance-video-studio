@@ -1,6 +1,6 @@
 # Persistent production profile
 
-[简体中文](production-profile.zh.md)
+[简体中文](https://runchengxie.github.io/finance-video-studio/zh/production-profile/)
 
 New projects use **`portrait-explainer-v1`**: native 1080×1440 at 60 fps, warm-paper broadcast styling and subtle background motion. These defaults live in version-controlled code and the production skill. Source paths and private reference episodes remain outside this repository.
 
