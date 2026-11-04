@@ -1,3 +1,4 @@
+import {assertProductionProfileReady} from './profile.js';
 import {mkdir,readFile,writeFile,copyFile,constants} from 'node:fs/promises';
 import path from 'node:path';
 import {hash} from '../review.js';
@@ -17,7 +18,7 @@ import {compileStages} from './stages.js';
 
 export async function packageDelivery(manifest:string,reviewFile:string,buildDirectory:string,output:string){
  const snapshot=await snapshotProject(manifest),review=await loadProductionReview(reviewFile);
- assertProductionApproved(snapshot,review);assertAudienceReady(snapshot.project);
+ assertProductionApproved(snapshot,review);assertAudienceReady(snapshot.project);assertProductionProfileReady(snapshot.project);
  await assertOutput(manifest,output);await assertExternal(buildDirectory);
  const source=await actualPath(buildDirectory),destination=await actualPath(output);
  if(within(source,destination)||within(destination,source))throw new Error('delivery_build_overlap');

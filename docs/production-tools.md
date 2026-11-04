@@ -1,5 +1,6 @@
 # Production project tools
 
+See [persistent production profile](production-profile.md) for new-project defaults, motion and audio-edit requirements.
 The v2 tools initialize external projects, import local assets, inspect readiness, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
 
 ```sh

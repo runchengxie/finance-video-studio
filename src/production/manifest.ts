@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import path from 'node:path';
+import {productionProfileSchema} from './profile.js';
 import {numericClaimSchema,validateClaimLinks} from './evidence-ledger.js';
 
 export const idSchema=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/);
@@ -32,6 +33,7 @@ const cueSchema=z.object({id:idSchema,text:text(180),startFrame:frame,endFrame:f
 const eventSchema=z.object({id:idSchema,sceneId:idSchema,cueId:idSchema,targetId:idSchema,action:z.enum(['reveal','highlight','compare','annotate']),offsetFrames:z.number().int().min(-108000).max(108000),durationFrames:z.number().int().min(1).max(300),precision:z.enum(['cue_start','manually_aligned','unresolved'])}).strict();
 const renderSchema=z.object({theme:z.enum(['studio-v1','broadcast-v1']),visual:z.object({preset:z.enum(['warm-paper','navy']),motion:z.enum(['static','subtle'])}).strict().optional(),broadcast:z.object({programName:text(80),backgroundVideoId:idSchema.optional()}).strict().optional(),crf:z.number().int().min(0).max(40),audioId:idSchema.nullable(),normalization:z.object({targetLufs:z.number().min(-30).max(-10),truePeak:z.number().min(-6).max(-.1)}).strict().nullable(),backgroundAudioId:idSchema.optional()}).strict();
 export const manifestSchema=z.object({schemaVersion:z.literal(2),id:idSchema,title:text(120),contentLanguage:z.enum(['en','zh']),fictional:z.boolean(),fps:z.union([z.literal(30),z.literal(60)]),width:z.union([z.literal(1920),z.literal(1080)]),height:z.union([z.literal(1080),z.literal(1440)]),durationFrames:frame.min(1),
+ productionProfile:productionProfileSchema.optional(),
  numericClaims:z.array(numericClaimSchema).max(20000).optional(),
  internalNotes:z.array(z.object({id:idSchema,text:text(4000)}).strict()).max(500).optional(),
  delivery:z.object({cover:z.object({headline:text(80),subtitle:text(120),series:text(80),imageId:idSchema.optional(),imageLabel:text(120).optional()}).strict()}).strict().optional(),

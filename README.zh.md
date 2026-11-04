@@ -44,3 +44,5 @@ macOS 或 Linux 可以运行 `npm run demo -- /tmp/finance-first-demo`。输出�
 文档站点可以切换中英文，默认跟随系统的明暗设置，右上角也能手动切换主题。
 
 原创代码使用 MIT 许可。依赖和外部素材各有自己的许可，详见[第三方说明](docs/third-party.zh.md)。
+
+新制作工程默认采用原生3∶4竖屏、60fps，按口播安排动效，并明确记录音频裁剪或全长保留的决定。具体要求及共享资源的实时预览命令见[固定制作规范](docs/production-profile.zh.md)。

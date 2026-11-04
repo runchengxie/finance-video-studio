@@ -1,3 +1,4 @@
+import {createLivePreview} from './production/live-preview.js';
 import {initializeProject,importAsset,loadWorkspace,readProject,readJson,writeJson} from './production/project-io.js';
 import {doctor} from './production/doctor.js';
 import {exportTimeline} from './production/subtitle-exports.js';
@@ -20,6 +21,7 @@ const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
 try{
  switch(command){
+  case 'preview':if(args.length!==2&&args.length!==3)throw new Error('invalid_arguments: preview MANIFEST NEW_OUTPUT [ASSET_CACHE]');console.log(JSON.stringify(await createLivePreview(required(0),required(1),args[2])));break;
   case 'review-page':if(args.length!==3)throw new Error('invalid_arguments: review-page MANIFEST BUILD NEW_OUTPUT');console.log(JSON.stringify(await createReviewPage(required(0),required(1),required(2))));break;
   case 'compare':if(args.length!==3)throw new Error('invalid_arguments: compare BEFORE_MANIFEST AFTER_MANIFEST NEW_OUTPUT');console.log(JSON.stringify(await compareNarrations(required(0),required(1),required(2))));break;
   case 'audit':if(args.length!==2)throw new Error('invalid_arguments: audit MANIFEST NEW_REPORT');await assertOutput(required(0),required(1));await writeJson(required(1),auditProduction(await readProject(required(0))));break;
@@ -30,7 +32,7 @@ try{
   case 'voice':if(args.length!==4||args[3]!=='--execute-local')throw new Error('explicit_local_execution_required');console.log(JSON.stringify(await generateVoice(required(0),{voice:required(1),output:required(2),executeLocal:true})));break;
   case 'voice-demo':if(args.length!==3||args[2]!=='--execute-local')throw new Error('explicit_local_execution_required');await renderVoicedProductionDemo(required(0),required(1),true);break;
   case 'render':if(args.length!==4)throw new Error('invalid_arguments: render MANIFEST REVIEW NEW_OUTPUT CACHE');console.log(JSON.stringify(await renderProduction(required(0),required(1),required(2),required(3))));break;
-  case 'init':if(args.length!==1)throw new Error('invalid_arguments');await initializeProject(required(0));break;
+  case 'init':if(args.length!==1&&!(args.length===3&&args[1]==='--profile'&&['portrait-explainer-v1','legacy-landscape'].includes(required(2))))throw new Error('invalid_arguments: init NEW_OUTPUT [--profile portrait-explainer-v1|legacy-landscape]');await initializeProject(required(0),args[2] as 'portrait-explainer-v1'|'legacy-landscape'|undefined);break;
   case 'import':if(args.length!==3)throw new Error('invalid_arguments');console.log(JSON.stringify({revision:await importAsset(required(0),required(1),required(2))}));break;
   case 'timeline':if(args.length!==2)throw new Error('invalid_arguments');await assertOutput(required(0),required(1));await exportTimeline(await readProject(required(0)),required(1));break;
   case 'verify':{

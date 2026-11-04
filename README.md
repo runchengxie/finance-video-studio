@@ -31,6 +31,8 @@ The example produces a 30-second **silent video with fictional data**, subtitles
 
 Follow the [production guide](docs/production-rendering.md) to prepare a project and review its script before rendering. Keep real research, scripts, audio and generated files outside the code repository. The tool does not upload or publish videos.
 
+New production projects default to native 3:4 portrait at 60 fps, with cue-linked motion and an explicit audio-edit decision. See the [persistent production profile](docs/production-profile.md), including the live preview command and shared review assets.
+
 ## Where to go next
 
 | I want to… | Read |
