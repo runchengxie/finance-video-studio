@@ -49,3 +49,12 @@ test('live narration and source-cut controls play real synthetic audio without c
  }finally{await browser.close();}
  assert(!(await readdir(out)).some(name=>name.endsWith('.wav')||name.endsWith('.mp4')));
 });
+
+test('portrait preview shares verified conceptual artwork and displays it offline',async t=>{
+ const root=await mkdtemp(path.join(tmpdir(),'native-preview-art-'));t.after(()=>rm(root,{recursive:true,force:true}));await mkdir(path.join(root,'inputs'));
+ const image=path.join(root,'inputs/art.png');assert(mediaTool('ffmpeg',['-v','error','-f','lavfi','-i','color=c=tan:s=64x64','-frames:v','1',image]).ok);
+ const base=productionFixture(),p={...base,width:1080,height:1440,fps:60,inputs:[{id:'art',path:'inputs/art.png',mediaType:'image',sha256:await hashFile(image),provenance:'Synthetic color',rights:'Original fixture'}],scenes:[{...base.scenes[0]!,template:'process',data:{items:[{id:'operating',label:'Customer',detail:'Pays'},{id:'equipment',label:'Company',detail:'Receives'}]},presentation:{layout:'explanation',chapterLabel:'Mechanism',processStyle:'chain',illustration:{inputId:'art',label:'Generated concept'}}}]};
+ const file=path.join(root,'project.json');await writeFile(file,JSON.stringify(p));const cache=path.join(root,'shared'),out=path.join(root,'first');await createLivePreview(file,out,cache);const resources=await readdir(cache);assert.equal(resources.length,3);await createLivePreview(file,path.join(root,'second'),cache);assert.deepEqual(await readdir(cache),resources);assert(!(await readdir(out)).some(n=>n.endsWith('.png')));
+ const browser=await chromium.launch();try{const page=await browser.newPage();await page.route(/^https?:/,r=>r.abort());await page.goto('file://'+path.join(out,'index.html'));await page.waitForFunction(()=>{const img=document.querySelector<HTMLIFrameElement>('#screen')?.contentDocument?.querySelector<HTMLImageElement>('.concept-art img');return !!img&&img.naturalWidth===64;});}finally{await browser.close();}
+ await writeFile(image,'tampered');await assert.rejects(()=>createLivePreview(file,path.join(root,'bad'),cache),/input_hash_mismatch/);
+});

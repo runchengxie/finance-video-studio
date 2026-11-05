@@ -51,7 +51,7 @@ function landscapeSceneHtml(project:ProductionProject,sceneId:string,frame:numbe
 }
 
 export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
- return project.width===1080?portraitSceneHtml(project,sceneId,frame,fontCss):applyVisualProfile(landscapeSceneHtml(project,sceneId,frame,fontCss,variant,visualAssets),project,frame);
+ return project.width===1080?portraitSceneHtml(project,sceneId,frame,fontCss,visualAssets):applyVisualProfile(landscapeSceneHtml(project,sceneId,frame,fontCss,variant,visualAssets),project,frame);
 }
 
 

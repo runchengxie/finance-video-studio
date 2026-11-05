@@ -2,7 +2,7 @@ import type {ProductionProject} from './manifest.js';
 import {sceneHtml} from './templates.js';
 import {previewLabels} from './preview-locales.js';
 
-declare global {interface Window {STUDIO_PREVIEW:{project:ProductionProject;audioUrl:string|null;sourceAudioUrl:string|null;fontUrl:string;snapshotHash:string}}}
+declare global {interface Window {STUDIO_VISUALS?:Record<string,string>;STUDIO_PREVIEW:{project:ProductionProject;audioUrl:string|null;sourceAudioUrl:string|null;fontUrl:string;snapshotHash:string}}}
 const record=window.STUDIO_PREVIEW,p=record.project;
 const voice=document.querySelector<HTMLAudioElement>('#voice')!,source=document.querySelector<HTMLAudioElement>('#source')!,screen=document.querySelector<HTMLIFrameElement>('#screen')!,slider=document.querySelector<HTMLInputElement>('#frame')!,search=document.querySelector<HTMLInputElement>('#search')!;
 let requested=0,last=-1,pendingSeek:number|null=null,sourceStop:number|null=null;
@@ -12,7 +12,7 @@ function draw(){
  const frame=Math.max(0,Math.min(p.durationFrames-1,record.audioUrl&&voice.readyState?Math.floor(voice.currentTime*p.fps+1e-3):requested));
  if(last===frame)return;last=frame;requested=frame;slider.value=String(frame);
  const scene=p.scenes.find(s=>frame>=s.from&&frame<s.from+s.durationFrames)!;
- const markup=new DOMParser().parseFromString(sceneHtml(p,scene.id,frame,''),'text/html');style.textContent=markup.querySelector('style')!.textContent;doc.body.innerHTML=markup.body.innerHTML;
+ const markup=new DOMParser().parseFromString(sceneHtml(p,scene.id,frame,'','improved',new Map(p.inputs.filter(x=>x.mediaType==='image').map(x=>[x.id,window.STUDIO_VISUALS?.[x.sha256]??'']))),'text/html');style.textContent=markup.querySelector('style')!.textContent;doc.body.innerHTML=markup.body.innerHTML;
  document.querySelector('#position')!.textContent=time(frame)+' / '+time(p.durationFrames);
  document.querySelectorAll<HTMLButtonElement>('#cues button').forEach(b=>b.classList.toggle('active',frame>=Number(b.dataset.start)&&frame<Number(b.dataset.end)));
 }

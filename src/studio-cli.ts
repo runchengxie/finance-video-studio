@@ -1,3 +1,4 @@
+import {inventoryStorage} from './production/retention.js';
 import {createLivePreview} from './production/live-preview.js';
 import {initializeProject,importAsset,loadWorkspace,readProject,readJson,writeJson} from './production/project-io.js';
 import {doctor} from './production/doctor.js';
@@ -21,6 +22,7 @@ const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
 try{
  switch(command){
+  case 'storage-audit':if(args.length!==2)throw new Error('invalid_arguments: storage-audit ROOT NEW_REPORT');await assertOutput(required(0),required(1));await writeJson(required(1),await inventoryStorage(required(0)));break;
   case 'preview':if(args.length!==2&&args.length!==3)throw new Error('invalid_arguments: preview MANIFEST NEW_OUTPUT [ASSET_CACHE]');console.log(JSON.stringify(await createLivePreview(required(0),required(1),args[2])));break;
   case 'review-page':if(args.length!==3)throw new Error('invalid_arguments: review-page MANIFEST BUILD NEW_OUTPUT');console.log(JSON.stringify(await createReviewPage(required(0),required(1),required(2))));break;
   case 'compare':if(args.length!==3)throw new Error('invalid_arguments: compare BEFORE_MANIFEST AFTER_MANIFEST NEW_OUTPUT');console.log(JSON.stringify(await compareNarrations(required(0),required(1),required(2))));break;

@@ -50,3 +50,11 @@ npm run studio -- compare /absolute/before.json /absolute/after.json /absolute/n
 ```
 
 See [narration comparison](narration-comparison.md). It aligns existing transcripts, identifies numeric/date/unit changes and affected scenes, and preserves both manifest snapshots. It does not transcribe or listen to WAV files; audio identity is compared from declared manifest hashes and explicitly marked unverified. New speech needs a new transcript and listening review before using this report as a revision plan.
+
+## Conceptual artwork and explanatory diagrams
+
+Native portrait process scenes can include `presentation.illustration: {"inputId":"concept-art","label":"AI-generated conceptual illustration"}`. The input must be a verified PNG/JPEG image. Artwork is shown beside the diagram, with a visible context label; it must not stand in for financial evidence. This layout supports two to four process items, subject to density checks. Branch diagrams use the full chart panel and cannot include a side illustration. Rich diagrams reject sidebars because the reduced panel would clip nodes; move the caveat to the headline or a separate scene.
+
+Set `presentation.processStyle` to `chain`, `cycle`, `parallel` or `branches`. Chains connect successive items; cycles also need an explicit return link when that relationship is intended. Parallel nodes and branch diagrams convey separate considerations without implying a causal sequence. Optional `data.links` specifies directed edges as `{"fromId":"sale","toId":"cash","label":"Settlement"}`; both IDs must be process targets. An explicit empty links array draws no arrows. Links trace from cue-linked target progress and support reverse seeking. Keep labels concise; a dense diagram fails rather than dropping text. Use separate scenes when relationships or labels cannot remain readable.
+
+The same native renderer draws preview and export. Artwork is included in approval snapshots and affected scene cache fingerprints. Live previews share a hash-addressed resource per image, alongside shared font and renderer resources; they do not copy image files or audio into each preview. A newly generated asset is saved once in the owning episode's `inputs/`, and later manifest revisions reference it. Keep changed artwork in a new file, especially when historical inputs use immutable hardlinks.

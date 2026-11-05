@@ -6,6 +6,7 @@ export function visualStageFingerprint(p:ProductionProject,stage:Stage,rendererR
  const scene=p.scenes.find(s=>s.id===stage.sceneId)!;
  const sourceIds=new Set([...scene.sourceIds,...(scene.template==='evidence'?[scene.data.sourceId]:[])]);
  const imageIds=new Set(scene.presentation?.evidencePanels?.map(x=>x.inputId)??[]);
+ if(scene.presentation?.illustration)imageIds.add(scene.presentation.illustration.inputId);
  const background=p.render.broadcast?.backgroundVideoId;if(background)imageIds.add(background);
  const eventCueIds=new Set(p.events.filter(e=>e.sceneId===scene.id).map(e=>e.cueId));
  return {rendererRevision,stage,profile:{width:p.width,height:p.height,fps:p.fps},identity:{id:p.id,title:p.title,fictional:p.fictional,language:p.contentLanguage,index:p.scenes.indexOf(scene),count:p.scenes.length,durationFrames:p.durationFrames},scene,

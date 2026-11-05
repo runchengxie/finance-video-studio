@@ -16,7 +16,7 @@ const sourceSchema=z.object({id:idSchema,citation:text(4000),url:z.url().optiona
 const blockSchema=z.object({id:idSchema,text:text(8000),sourceIds:z.array(idSchema).max(1000)}).strict();
 const point=z.object({id:idSchema,label:text(80),value:number}).strict();
 const highlightSchema=z.object({x:z.number().min(0).max(1),y:z.number().min(0).max(1),width:z.number().positive().max(1),height:z.number().positive().max(1),cueId:idSchema}).strict().refine(r=>r.x+r.width<=1&&r.y+r.height<=1,'Highlight exceeds image');
-const presentationSchema=z.object({chartStyle:z.enum(['bars','values']).optional(),layout:z.enum(['evidence','wide-chart','explanation']),chapterLabel:text(120),headline:text(120).optional(),sidebar:z.array(z.object({label:text(120),cueId:idSchema.optional()}).strict()).max(3).optional(),evidencePanels:z.array(z.object({inputId:idSchema,sourceId:idSchema,label:text(120),pageLabel:text(80),highlight:highlightSchema.optional()}).strict()).max(2).optional()}).strict();
+const presentationSchema=z.object({illustration:z.object({inputId:idSchema,label:text(120)}).strict().optional(),processStyle:z.enum(['chain','cycle','parallel','branches']).optional(),chartStyle:z.enum(['bars','values']).optional(),layout:z.enum(['evidence','wide-chart','explanation']),chapterLabel:text(120),headline:text(120).optional(),sidebar:z.array(z.object({label:text(120),cueId:idSchema.optional()}).strict()).max(3).optional(),evidencePanels:z.array(z.object({inputId:idSchema,sourceId:idSchema,label:text(120),pageLabel:text(80),highlight:highlightSchema.optional()}).strict()).max(2).optional()}).strict();
 const sceneBase={presentation:presentationSchema.optional(),id:idSchema,from:frame,durationFrames:frame.min(1),title:text(120),chapterId:idSchema.optional(),sourceIds:z.array(idSchema).max(1000)};
 const unit=text(80);
 const precision=z.number().int().min(0).max(8).optional();
@@ -26,7 +26,7 @@ const sceneSchema=z.discriminatedUnion('template',[
  z.object({...sceneBase,template:z.literal('signed-comparison'),data:z.object({unit,precision,items:z.array(point).min(2).max(8)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('waterfall'),data:z.object({unit,start:point,steps:z.array(point).min(1).max(12),end:point}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('trend'),data:z.object({unit,series:z.array(z.object({id:idSchema,label:text(80),values:z.array(z.object({label:text(80),value:number}).strict()).min(2).max(100)}).strict()).min(1).max(4)}).strict()}).strict(),
- z.object({...sceneBase,template:z.literal('process'),data:z.object({items:z.array(z.object({id:idSchema,label:text(80),detail:text(240)}).strict()).min(2).max(6)}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('process'),data:z.object({items:z.array(z.object({id:idSchema,label:text(80),detail:text(240)}).strict()).min(2).max(6),links:z.array(z.object({fromId:idSchema,toId:idSchema,label:text(40)}).strict()).max(12).optional()}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('evidence'),data:z.object({id:idSchema,text:text(1000),sourceId:idSchema}).strict()}).strict()
 ]);
 const cueSchema=z.object({id:idSchema,text:text(180),startFrame:frame,endFrame:frame.min(1)}).strict();
@@ -76,7 +76,14 @@ export function parseProject(value:unknown):ProductionProject {
  const cues=new Map(p.cues.map(c=>[c.id,c]));
  for(const s of p.scenes){
   if(s.template==='comparison'&&s.data.difference?.cueId){const c=cues.get(s.data.difference.cueId);if(!c||c.startFrame<s.from||c.startFrame>=s.from+s.durationFrames)throw new Error('difference_cue_reference');}
+  if(s.template==='process')for(const link of s.data.links??[]){if(link.fromId===link.toId||![link.fromId,link.toId].every(id=>targetIds(s).includes(id)))throw new Error('process_link_reference');}
+  if(s.template==='process'&&s.data.links&&p.width!==1080)throw new Error('process_links_require_portrait');
   const presentation=s.presentation;if(!presentation)continue;
+  if(s.template==='process'&&(presentation.processStyle||s.data.links)&&presentation.sidebar?.length)throw new Error('process_diagram_sidebar_density');
+  if(presentation.illustration){if(p.width!==1080)throw new Error('illustration_requires_portrait');if(inputs.get(presentation.illustration.inputId)?.mediaType!=='image')throw new Error('unknown_illustration_image');if(s.template!=='process'||s.data.items.length>4)throw new Error('illustration_requires_short_process');}
+  if(presentation.processStyle==='branches'&&presentation.illustration)throw new Error('branch_illustration_density');
+  if(presentation.processStyle&&(s.template!=='process'||p.width!==1080))throw new Error('process_style_requires_portrait_process');
+
   if(presentation.chartStyle==='values'&&s.template!=='comparison'&&s.template!=='signed-comparison')throw new Error('value_list_requires_comparison');
   for(const panel of presentation.evidencePanels??[]){
    if(inputs.get(panel.inputId)?.mediaType!=='image')throw new Error('unknown_panel_image');

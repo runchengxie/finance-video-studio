@@ -10,8 +10,8 @@ export async function capturePage():Promise<{page:Page;font:string;close:()=>Pro
 }
 export async function paint(page:Page,font:string,p:ProductionProject,sceneId:string,frame:number,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):Promise<void>{
  await page.setViewportSize({width:p.width,height:p.height});
- const markup=sceneHtml(p,sceneId,frame,loaded.has(page)?'':font,variant,visualAssets);
- if(!loaded.has(page)){await page.setContent(markup);loaded.add(page);}
+ const markup=sceneHtml(p,sceneId,frame,'',variant,visualAssets);
+ if(!loaded.has(page)){await page.setContent(markup);await page.locator('style').first().evaluate(el=>el.id='production-style');await page.addStyleTag({content:font});loaded.add(page);}
  else await page.evaluate(html=>{const doc=new DOMParser().parseFromString(html,'text/html');const style=doc.querySelector('style')!.textContent!;let dynamic=document.querySelector('#production-style');if(!dynamic){dynamic=document.createElement('style');dynamic.id='production-style';document.head.append(dynamic);}dynamic.textContent=style;document.body.innerHTML=doc.body.innerHTML;},markup);
  await page.evaluate(async()=>{await document.fonts.load('30px "Noto Sans SC"','虚构示例');await document.fonts.ready;await Promise.all(Array.from(document.images).map(img=>img.decode()));});
  const problems=await page.evaluate(()=>{
