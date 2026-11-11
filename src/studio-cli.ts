@@ -17,6 +17,8 @@ import {auditProduction} from './production/preflight.js';
 import {packageDelivery} from './production/delivery.js';
 import {createReviewPage} from './production/review-page.js';
 import {compareNarrations} from './production/narration-diff.js';
+import {applyVisualPatch,visualPatchSchema} from './production/visual-adjustments.js';
+import {hash} from './review.js';
 
 const [command,...args]=process.argv.slice(2);
 function required(i:number):string {if(!args[i])throw new Error('invalid_arguments');return args[i]!;}
@@ -26,6 +28,14 @@ try{
   case 'preview':if(args.length!==2&&args.length!==3)throw new Error('invalid_arguments: preview MANIFEST NEW_OUTPUT [ASSET_CACHE]');console.log(JSON.stringify(await createLivePreview(required(0),required(1),args[2])));break;
   case 'review-page':if(args.length!==3)throw new Error('invalid_arguments: review-page MANIFEST BUILD NEW_OUTPUT');console.log(JSON.stringify(await createReviewPage(required(0),required(1),required(2))));break;
   case 'compare':if(args.length!==3)throw new Error('invalid_arguments: compare BEFORE_MANIFEST AFTER_MANIFEST NEW_OUTPUT');console.log(JSON.stringify(await compareNarrations(required(0),required(1),required(2))));break;
+  case 'patch':{
+   if(args.length!==3)throw new Error('invalid_arguments: patch MANIFEST VISUAL_PATCH NEW_MANIFEST');
+   await assertOutput(required(0),required(2));
+   const project=await readProject(required(0)),snapshot=await snapshotProject(required(0)),patch=visualPatchSchema.parse(await readJson(required(1)));
+   if(patch.projectId!==project.id)throw new Error('visual_patch_project_mismatch');
+   if(patch.baseSnapshotHash!==hash(snapshot))throw new Error('visual_patch_stale_snapshot');
+   await writeJson(required(2),applyVisualPatch(project,patch));break;
+  }
   case 'audit':if(args.length!==2)throw new Error('invalid_arguments: audit MANIFEST NEW_REPORT');await assertOutput(required(0),required(1));await writeJson(required(1),auditProduction(await readProject(required(0))));break;
   case 'deliver':if(args.length!==4)throw new Error('invalid_arguments: deliver MANIFEST REVIEW BUILD NEW_OUTPUT');console.log(JSON.stringify(await packageDelivery(required(0),required(1),required(2),required(3))));break;
   case 'broadcast-demo':if(args.length!==1)throw new Error('fixed_demo_output_only');await renderBroadcastDemo(required(0));break;

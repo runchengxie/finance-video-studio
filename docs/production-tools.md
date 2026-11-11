@@ -1,7 +1,7 @@
 # Production project tools
 
 See [persistent production profile](production-profile.md) for new-project defaults, motion and audio-edit requirements.
-The v2 tools initialize external projects, import local assets, inspect readiness, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
+The v2 tools initialize external projects, import local assets, inspect readiness, apply layout-only visual patches, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -21,6 +21,18 @@ npm run studio -- timeline /absolute/project-revision.json /absolute/new-timelin
 Doctor is read-only: it hashes actual inputs, validates the project, checks unresolved events and probes configured FFmpeg/ffprobe plus the pinned browser/font. It does not inspect or grant editorial approval. Optional root configuration comes only from the explicitly supplied workspace TOML or `CODE_ROOT`, `DATA_ROOT`, `CONFIG_ROOT`; none is required for explicit project paths.
 
 Timeline export creates SRT, per-scene ASS, chapter metadata and a storyboard in a fresh directory. SRT imports floor cue starts and ceil cue ends to the selected 30 or 60 fps time base; any overlap created by rounding is rejected with affected IDs. ASS text neutralizes literal backslashes and braces with full-width glyphs, preventing override instructions; authored line breaks remain visible.
+
+## Adjust a chart target without editing financial data
+
+The live preview includes a visual adjustment panel. Pause on a frame, enable editing, select a chart target, and drag it or nudge it with the arrow keys (Shift moves 10 px). Plus and minus scale the selection; reset restores it. Export writes a `visual-patch.json` proposal and also displays its JSON in the page.
+
+```sh
+npm run studio -- patch /absolute/project-revision.json /absolute/visual-patch.json /absolute/project-revision-adjusted.json
+```
+
+`patch` checks that the patch belongs to the project and matches the preview's snapshot hash, then writes a new manifest revision. It refuses stale, foreign or duplicate target changes and never overwrites the source manifest. Adjustments only translate or scale an existing target by at most 400 px and 0.5–1.5×; they cannot change financial values, units, sources, cues or approval.
+
+Visual adjustments are part of the project snapshot. Applying a patch invalidates an earlier approval: rerun the layout checks and obtain approval for the new revision. Preview and `patch` are inspection and layout-editing tools, not encoded output, factual verification, human listening or rendering approval.
 
 ## Verify an existing video
 

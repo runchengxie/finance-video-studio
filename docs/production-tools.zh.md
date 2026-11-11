@@ -1,7 +1,7 @@
 # 制作项目工具
 
 新工程默认规格、动画及音频处理要求见[固定制作规范](production-profile.zh.md)。
-v2 工具可以初始化外部项目、导入本地素材、检查准备状态、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准参见[审核后生成视频](production-rendering.md)；检查工具不会批准任何稿件。
+v2 工具可以初始化外部项目、导入本地素材、检查准备状态、应用纯布局视觉补丁、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准参见[审核后生成视频](production-rendering.md)；检查工具不会批准任何稿件。
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -21,6 +21,18 @@ npm run studio -- timeline /absolute/project-revision.json /absolute/new-timelin
 预检只读实际输入并计算哈希，检查清单、尚未定位的动画事件、FFmpeg/ffprobe 及锁定浏览器和字体。它不会读取或授予文稿批准。根目录配置仅来自显式提供的 workspace TOML 或 `CODE_ROOT`、`DATA_ROOT`、`CONFIG_ROOT`；只使用绝对项目路径时不依赖这些配置。
 
 时间轴导出在新目录中生成 SRT、逐镜 ASS、章节元数据和分镜表。将 SRT 的毫秒时间换算为所选 30 或 60 fps 的帧位置时，起点向下取整，终点向上取整；若因此产生重叠，会报告对应字幕 ID，不能悄悄移动配音时间。ASS 的字面反斜杠和花括号转为全角字符以阻止控制指令，原文换行仍然保留。
+
+## 在不修改财务数据的情况下微调图表目标
+
+实时预览带有视觉微调面板。先暂停在需要检查的画面，开启编辑，选择图表目标后拖动，或用方向键微调（按住 Shift 每次 10 像素）。加减按钮缩放所选目标，重置按钮恢复原位。导出会生成 `visual-patch.json` 提案，并在页面中显示其 JSON。
+
+```sh
+npm run studio -- patch /absolute/project-revision.json /absolute/visual-patch.json /absolute/project-revision-adjusted.json
+```
+
+`patch` 会检查补丁是否属于当前项目、是否匹配预览时的快照哈希，然后写入新的清单版本。它会拒绝过期、来自其他项目或重复目标的修改，也不会覆盖原清单。视觉调整只能平移或缩放已有目标，最大偏移 400 像素，缩放范围 0.5–1.5 倍；不能修改财务数值、单位、来源、字幕或批准状态。
+
+视觉调整属于项目快照的一部分。应用补丁会使旧批准失效，必须重新运行布局检查并为新版本取得批准。预览和 `patch` 是检查与布局编辑工具，不代表已编码输出、事实认证、真人听校或渲染批准。
 
 ## 检查已有视频
 

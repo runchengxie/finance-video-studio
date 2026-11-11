@@ -10,6 +10,10 @@ The registry audit still reports a moderate minimatch advisory ([GHSA-g3hv-75wg-
 
 Validation passed with Node 24.22.2 and system FFmpeg 8.1.2: `npm run check`, all 101 tests, both pinned-Chromium smoke cases, the fixed synthetic review example, and the strict bilingual documentation build. The production dependency audit reported zero vulnerabilities. Generated evidence remains outside Git.
 
+## Visual patch editing (2026-11-11)
+
+Local validation used Node 24.22.2, the pinned Playwright Chromium, Noto Sans SC and system FFmpeg 8.1.2. `npm run check` passed; all 113 tests passed, including new preview drag/export, painted-frame determinism, visual cache-fingerprint and stale-patch cases. `npm run tools:smoke -- <external-directory>` passed with the new `studio patch` success and stale-hash rejection cases. The fixed synthetic review example and the pinned-Chromium smoke render also passed. The MkDocs build was not run on this host. Generated evidence remains outside Git.
+
 ## First-version validation
 
 Local validation on 2026-10-17 used Node 24.19.0, the locked Playwright Chromium 156.0.8078.4 (revision 1248), Noto Sans SC 5.2.8, and external FFmpeg 9.0.2.

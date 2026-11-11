@@ -30,6 +30,8 @@ Resolve material factual gaps before approval or agree on a supported revision. 
 
 Maintain a coverage list linking important spoken numbers to cues, visuals and sources. Do not invent observations to make a chart fuller. A year used only as a date may need a label rather than a separate chart. Keep subtitles readable when a number card is active.
 
+Use the live preview's visual adjustment panel for layout-only fixes such as a crowded label or a bar too close to the frame edge. Export a patch and apply it with `studio patch` to create a new manifest revision; the adjustment invalidates earlier approval and cannot replace editorial review. Never use layout adjustment to hide a material value, unit, period, source or limitation.
+
 ## Animate from audio time
 
 Use reusable chart and diagram components with a deterministic `drawAt(time)` or equivalent seekable interface. Forward playback, random seeks and reverse seeks must produce the same state at the same time. Reveal bars, lines, arrows and branches progressively with consistent easing. Keep final values readable; decorative number interpolation must not look like measured intermediate data. Background movement should remain subtle behind text.
