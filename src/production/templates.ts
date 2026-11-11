@@ -38,6 +38,7 @@ function chart(scene:Scene,state:SceneState,lang:ProductionProject['contentLangu
    return group(p.id,`<rect x="${i*w}" y="90" width="${w-24}" height="480" rx="18" fill="${t.surface}"/>`+text(i*w+24,150,`${l.step} ${i+1}`,28,`fill="${t.accent}"`)+title.map((s,j)=>text(i*w+24,220+j*60,s,40)).join('')+detail.map((s,j)=>text(i*w+24,detailTop+j*48,s,32,`fill="${t.muted}"`)).join(''));
   }).join('');}
   case 'evidence':return group(scene.data.id,text(0,60,l.evidence,26,`fill="${t.accent}"`)+wrap(scene.data.text,58).map((s,i)=>text(0,150+i*48,s,34)).join(''));
+  case 'custom':throw new Error('custom_scene_requires_portrait');
  }
 }
 function landscapeSceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {

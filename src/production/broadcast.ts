@@ -34,6 +34,7 @@ function content(scene:Scene,state:SceneState,p:ProductionProject):string {
    return signedBars(scene,state)+(d&&(!d.cueId||state.frame>=p.cues.find(c=>c.id===d.cueId)!.startFrame)&&state.targets[d.leftId]?.visible&&state.targets[d.rightId]?.visible?`<div class="difference" data-fit>${e(d.label)} <b>${e(format(scene.data.items.find(x=>x.id===d.rightId)!.value-scene.data.items.find(x=>x.id===d.leftId)!.value,scene.data.precision))}</b> ${e(d.unit??scene.data.unit)}</div>`:'');
   }
   case 'evidence':return target(state,scene.data.id,`<div class="unit" data-fit>${l.evidence}</div><div class="excerpt" data-fit>${e(scene.data.text)}</div>`);
+  case 'custom':throw new Error('custom_scene_requires_portrait');
   case 'process':return `<div class="steps" style="--columns:${scene.data.items.length<=3?scene.data.items.length:2}">`+scene.data.items.map((x,i)=>target(state,x.id,`<article><div class="unit" data-fit>${l.step} ${i+1}</div><h2 data-fit>${e(x.label)}</h2><p data-fit>${e(x.detail)}</p></article>`)).join('')+'</div>';
   case 'trend':{
    const vals=scene.data.series.flatMap(x=>x.values.map(v=>v.value)),lo=Math.min(0,...vals),hi=Math.max(1,...vals),y=(v:number)=>420-(v-lo)/(hi-lo)*330;

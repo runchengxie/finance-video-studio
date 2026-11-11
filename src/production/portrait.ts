@@ -5,6 +5,7 @@ import {visualPalette} from './visual-profile.js';
 import {labels} from './locales.js';
 import {processDiagram} from './process-diagram.js';
 import {deliveryLabels} from './delivery-locales.js';
+import {customScenePanel} from './custom-scenes/index.js';
 
 const number=(v:number,d?:number)=>new Intl.NumberFormat('en',{maximumFractionDigits:d??8,minimumFractionDigits:d??0}).format(v);
 function opacity(s:SceneState,id:string){const t=s.targets[id]!;return !t.visible?0:t.action==='reveal'?1-(1-t.progress)**3:1;}
@@ -21,6 +22,7 @@ function panel(scene:Scene,state:SceneState,p:ProductionProject):string {
  }
  case 'process':if(scene.presentation?.processStyle||scene.data.links)return processDiagram(scene,state,p);return scene.data.items.map((x,i)=>wrap(x.id,`<article data-region><div class="step" data-fit>${e(l.step)} ${i+1} · ${e(x.label)}</div><div class="detail" data-fit>${e(x.detail)}</div></article>`)).join('');
  case 'evidence':return wrap(scene.data.id,`<blockquote data-fit>${e(scene.data.text)}</blockquote>`);
+ case 'custom':return customScenePanel(scene,state,p);
  case 'trend':{
   const values=scene.data.series.flatMap(s=>s.values.map(v=>v.value)),lo=Math.min(0,...values),hi=Math.max(1,...values),y=(v:number)=>430-(v-lo)/(hi-lo)*330;
   return `<div class="unit" data-fit>${e(scene.data.unit)}</div><svg width="840" height="520" viewBox="0 0 840 520"><path d="M70 60V430H790" stroke="${c.muted}" fill="none"/><text x="0" y="80">${e(number(hi))}</text><text x="0" y="430">${e(number(lo))}</text>${scene.data.series.map((s,j)=>`<g data-target="${e(s.id)}" opacity="${opacity(state,s.id)}"><polyline points="${s.values.map((v,i)=>`${70+i/(s.values.length-1)*720},${y(v.value)}`).join(' ')}" stroke="${[c.accent,c.secondary,c.negative,'#8173b9'][j]}" stroke-width="6" fill="none" pathLength="1" stroke-dasharray="1" stroke-dashoffset="${1-opacity(state,s.id)}"/><text x="${70+j*190}" y="510" data-fit>${e(s.label)}</text></g>`).join('')}<text x="70" y="475" data-fit>${e(scene.data.series[0]!.values[0]!.label)}</text><text x="790" y="475" text-anchor="end" data-fit>${e(scene.data.series[0]!.values.at(-1)!.label)}</text></svg>`;

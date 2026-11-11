@@ -1,7 +1,7 @@
 # Production project tools
 
 See [persistent production profile](production-profile.md) for new-project defaults, motion and audio-edit requirements.
-The v2 tools initialize external projects, import local assets, inspect readiness, apply layout-only visual patches, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
+The v2 tools initialize external projects, import local assets, inspect readiness, inspect key frames, apply layout-only visual patches, export timelines and verify media. Use the [reviewed rendering guide](production-rendering.md) for multi-scene builds and explicit v2 editorial approval; inspection tools do not grant permission to render a manuscript.
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -21,6 +21,16 @@ npm run studio -- timeline /absolute/project-revision.json /absolute/new-timelin
 Doctor is read-only: it hashes actual inputs, validates the project, checks unresolved events and probes configured FFmpeg/ffprobe plus the pinned browser/font. It does not inspect or grant editorial approval. Optional root configuration comes only from the explicitly supplied workspace TOML or `CODE_ROOT`, `DATA_ROOT`, `CONFIG_ROOT`; none is required for explicit project paths.
 
 Timeline export creates SRT, per-scene ASS, chapter metadata and a storyboard in a fresh directory. SRT imports floor cue starts and ceil cue ends to the selected 30 or 60 fps time base; any overlap created by rounding is rejected with affected IDs. ASS text neutralizes literal backslashes and braces with full-width glyphs, preventing override instructions; authored line breaks remain visible.
+
+## Inspect key frames before review
+
+```sh
+npm run studio -- look /absolute/project-revision.json /absolute/new-look-output
+```
+
+`look` samples the start, midpoint and final frame of every scene, writes `frames/*.png`, a `sheet.png` contact sheet and a machine-readable `look.json`. It then draws the same frames again in reverse order and compares SHA-256 values, so order-dependent rendering is reported instead of being missed by a sequential check. Native layout failures are recorded as issues; valid frames remain available for inspection.
+
+This is a visual self-check for agents and operators. A configured background video is not composited into these frames. It does not encode video, repair layout, verify facts or grant approval. Use a fresh output directory for each pass.
 
 ## Adjust a chart target without editing financial data
 

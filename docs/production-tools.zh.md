@@ -1,7 +1,7 @@
 # 制作项目工具
 
 新工程默认规格、动画及音频处理要求见[固定制作规范](production-profile.zh.md)。
-v2 工具可以初始化外部项目、导入本地素材、检查准备状态、应用纯布局视觉补丁、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准参见[审核后生成视频](production-rendering.md)；检查工具不会批准任何稿件。
+v2 工具可以初始化外部项目、导入本地素材、检查准备状态、抽取关键画面、应用纯布局视觉补丁、导出时间轴并核验媒体。多场景渲染和 v2 文稿批准参见[审核后生成视频](production-rendering.md)；检查工具不会批准任何稿件。
 
 ```sh
 npm run studio -- init /absolute/new-project
@@ -21,6 +21,16 @@ npm run studio -- timeline /absolute/project-revision.json /absolute/new-timelin
 预检只读实际输入并计算哈希，检查清单、尚未定位的动画事件、FFmpeg/ffprobe 及锁定浏览器和字体。它不会读取或授予文稿批准。根目录配置仅来自显式提供的 workspace TOML 或 `CODE_ROOT`、`DATA_ROOT`、`CONFIG_ROOT`；只使用绝对项目路径时不依赖这些配置。
 
 时间轴导出在新目录中生成 SRT、逐镜 ASS、章节元数据和分镜表。将 SRT 的毫秒时间换算为所选 30 或 60 fps 的帧位置时，起点向下取整，终点向上取整；若因此产生重叠，会报告对应字幕 ID，不能悄悄移动配音时间。ASS 的字面反斜杠和花括号转为全角字符以阻止控制指令，原文换行仍然保留。
+
+## 审阅前抽查关键画面
+
+```sh
+npm run studio -- look /absolute/project-revision.json /absolute/new-look-output
+```
+
+`look` 会抽取每个场景的起始、中间和最后一帧，写入 `frames/*.png`、`sheet.png` 检查图和机器可读的 `look.json`。随后按相反顺序重新绘制同一组画面并比较 SHA-256，从而报告与顺序相关的渲染差异，而不只做顺序播放检查。原生布局检查失败会记录为问题，已成功渲染的画面仍保留供检查。
+
+这是给智能体和操作者使用的视觉自检；配置的背景视频不会合成到这些画面中。它不编码视频、不修复布局、不核验事实，也不授予批准。每次检查应使用新的输出目录。
 
 ## 在不修改财务数据的情况下微调图表目标
 

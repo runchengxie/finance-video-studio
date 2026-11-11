@@ -35,13 +35,27 @@ Use optional `numericClaims` in the approved manifest:
 
 Status is `actual`, `guidance` or `estimate`; optional `calculation` records a formula or derivation. The claim must reference an overlapping cue, a real scene target and sources linked to that scene. `studio audit` reports missing claims, visual value/unit mismatches, and trend-period mismatches or unresolved period labels. Values and units must use the displayed visual's scale; record conversion in `calculation`. These are consistency checks, not verification of a source's truth, causal inference, or proof that every spoken number was covered. Date-only cues can be reviewed and left without a chart with a documented reason. Process/evidence targets still need editorial assessment of the numeric wording.
 
+## In-repo custom scenes
+
+Portrait projects may use `template: "custom"` for a chart that the built-in templates cannot express. The scene declares `data.moduleId`, a validated `data.input` object and the exact `data.targets` it exposes. Modules live under `src/production/custom-scenes/`, are reviewed and versioned with the repository, and render a deterministic SVG/HTML panel. The current example is `yield-curve-v1`.
+
+Custom scenes are portrait-only. Target IDs must match the module's validated output, module input participates in approval snapshots and scene cache fingerprints, and module facts can back numeric claims. A module cannot load files, URLs or external code: the manifest selects a registered ID, not a path or script. Do not treat this registry as a sandbox for untrusted third-party code. Add a module with tests, document its input contract and re-review any manifest that uses it.
+
 ## Review with time links
 
 ```sh
 npm run studio -- review-page /absolute/project.json /absolute/completed-build /absolute/new-review
 ```
 
-This exports an **internal** local page with the matching native video, original configured audio, cues, numeric issues, claim details, original source links and internal notes. Click a cue or use `index.html#cue=CUE_ID` to seek. Its language switch offers English and Chinese. Local playback needs no network; opening an external primary-source link is a separate action. Current snapshot, native build and media hashes are checked before export, and copied local evidence is rehashed. This page neither renders a manuscript nor grants approval, and does not change the formal MP4. Keep the review directory private.
+This exports an **internal** local page with the matching native video, a storyboard of every scene, visual target values, linked cues, numeric claims, original sources, numeric issues, claim details and internal notes. Each storyboard card links its scene, template, values, adjustments and evidence, and clicking the card seeks to the scene. Click a cue or use `index.html#cue=CUE_ID` to seek. Its language switch offers English and Chinese. Local playback needs no network; opening an external primary-source link is a separate action. Current snapshot, native build and media hashes are checked before export, and copied local evidence is rehashed. This page neither renders a manuscript nor grants approval, and does not change the formal MP4. Keep the review directory private.
+
+## Rendering reuse experiment
+
+```sh
+npm run benchmark:render
+```
+
+This synthetic experiment compares full native repaint with keeping one portrait trend DOM and updating only target opacity and line dash offsets. It requires screenshot equality at sampled frames; any pixel difference makes the command fail. It is a measurement harness, not a production renderer, approval path or general performance guarantee. Full repaint includes layout checks and font/image waits, while the reuse path only updates attributes, so read the two costs separately.
 
 ## Compare narration revisions
 
