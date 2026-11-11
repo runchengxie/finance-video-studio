@@ -16,7 +16,8 @@
     "demo": "tsx src/demo-cli.ts",
     "render": "tsx src/cli.ts",
     "smoke": "tsx test/smoke.ts",
-    "production:example": "tsx test/production-example.ts"
+    "production:example": "tsx test/production-example.ts",
+    "benchmark:render": "tsx test/production-render-benchmark.ts"
   },
   "dependencies": {
     "@fontsource/noto-sans-sc": "5.3.1",

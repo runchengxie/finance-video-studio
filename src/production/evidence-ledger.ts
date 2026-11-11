@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import type {ProductionProject,Scene} from './manifest.js';
+import {customSceneFacts} from './custom-scenes/index.js';
 const id=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/),text=z.string().trim().min(1).max(4000);
 export const numericClaimSchema=z.object({id,cueId:id,sceneId:id,targetId:id,value:z.number().finite(),unit:text,period:text,scope:text,sourceIds:z.array(id).min(1).max(1000),status:z.enum(['actual','guidance','estimate']),calculation:text.optional()}).strict();
 export type NumericClaim=z.infer<typeof numericClaimSchema>;
@@ -13,6 +14,7 @@ function visual(scene:Scene,target:string):{values:number[];unit:string;periods?
  case 'trend':{const p=scene.data.series.find(x=>x.id===target);return p?{values:p.values.map(x=>x.value),periods:p.values.map(x=>x.label),unit:scene.data.unit}:undefined;}
  case 'process':return scene.data.items.some(x=>x.id===target)?{values:[],unit:''}:undefined;
  case 'evidence':return scene.data.id===target?{values:[],unit:''}:undefined;
+ case 'custom':{const fact=customSceneFacts(scene).find(value=>value.target===target);return fact?{values:fact.values,unit:fact.unit,...(fact.periods?{periods:fact.periods}:{})}:undefined;}
  }
 }
 export function validateClaimLinks(project:Project):void {

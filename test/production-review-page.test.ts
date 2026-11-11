@@ -22,3 +22,15 @@ test('review refuses stale snapshot and changed media before output creation',as
  const {snapshotProject}=await import('../src/production/snapshot.js');const {hash}=await import('../src/review.js');const {compileStages}=await import('../src/production/stages.js');const {productionColors}=await import('../src/production/encoding.js');
  const root=await mkdtemp(path.join(tmpdir(),'finance-review-hashes-'));try{const manifest=path.join(root,'project.json'),build=path.join(root,'build'),out=path.join(root,'review');await writeFile(manifest,JSON.stringify(productionFixture()));await mkdir(build);const snapshot=await snapshotProject(manifest);const report={ok:true,inputHash:'0'.repeat(64),tools:{ffmpeg:'synthetic',ffprobe:'synthetic',browser:'synthetic',font:'0'.repeat(64)},stages:compileStages(snapshot.project).map(s=>({id:s.id,hit:false,reason:'synthetic',milliseconds:0})),milliseconds:0,failure:null,verification:{ok:true,file:'final.mp4',sha256:'0'.repeat(64),tools:{ffmpeg:'synthetic',ffprobe:'synthetic'},expectations:{width:1920,height:1080,fps:30,frames:90,durationSeconds:3,videoCodec:'h264',pixelFormat:'yuv420p',...productionColors,audio:{required:false}},checks:[{name:'full_decode',passed:true}],scans:{blackEvents:[],silenceEvents:[],loudness:[]},manualListening:false}};await writeFile(path.join(build,'build.json'),JSON.stringify(report));await assert.rejects(createReviewPage(manifest,build,out),/build_snapshot_mismatch/);await assert.rejects(access(out));report.inputHash=hash(snapshot);await writeFile(path.join(build,'build.json'),JSON.stringify(report));await writeFile(path.join(build,'final.mp4'),'changed media');await assert.rejects(createReviewPage(manifest,build,out),/build_media_hash_mismatch/);await assert.rejects(access(out));}finally{await rm(root,{recursive:true,force:true})}
 });
+test('storyboard cards link scenes, visual values, claims and sources without implying approval',async()=>{
+ const {chromium}=await import('playwright');const browser=await chromium.launch({headless:true});try{
+  const page=await browser.newPage();await page.route('**/*',route=>route.abort());
+  const fixture=productionFixture(),scene={...fixture.scenes[0]!,sourceIds:['s1']};
+  const p=parseProject({...fixture,sources:[{id:'s1',citation:'Fictional audited source'}],scenes:[scene],numericClaims:[{id:'claim-1',cueId:'cue-1',sceneId:'cash',targetId:'operating',value:30,unit:'USD million',period:'2025',scope:'Fictional entity',sourceIds:['s1'],status:'actual'}]});
+  await page.setContent(reviewPageHtml(p));
+  const card=page.locator('.storyboard article[data-scene="cash"]');await card.waitFor();
+  assert((await card.textContent())!.includes('Operating cash: 30'));assert((await card.textContent())!.includes('Fictional audited source'));
+  assert.equal(await card.locator('a').count(),1);
+  assert.equal(await page.locator('script').count(),1);
+ }finally{await browser.close()}
+});

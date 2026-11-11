@@ -18,6 +18,7 @@ import {packageDelivery} from './production/delivery.js';
 import {createReviewPage} from './production/review-page.js';
 import {compareNarrations} from './production/narration-diff.js';
 import {applyVisualPatch,visualPatchSchema} from './production/visual-adjustments.js';
+import {createLook} from './production/look.js';
 import {hash} from './review.js';
 
 const [command,...args]=process.argv.slice(2);
@@ -28,6 +29,7 @@ try{
   case 'preview':if(args.length!==2&&args.length!==3)throw new Error('invalid_arguments: preview MANIFEST NEW_OUTPUT [ASSET_CACHE]');console.log(JSON.stringify(await createLivePreview(required(0),required(1),args[2])));break;
   case 'review-page':if(args.length!==3)throw new Error('invalid_arguments: review-page MANIFEST BUILD NEW_OUTPUT');console.log(JSON.stringify(await createReviewPage(required(0),required(1),required(2))));break;
   case 'compare':if(args.length!==3)throw new Error('invalid_arguments: compare BEFORE_MANIFEST AFTER_MANIFEST NEW_OUTPUT');console.log(JSON.stringify(await compareNarrations(required(0),required(1),required(2))));break;
+  case 'look':if(args.length!==2)throw new Error('invalid_arguments: look MANIFEST NEW_OUTPUT');console.log(JSON.stringify(await createLook(required(0),required(1))));break;
   case 'patch':{
    if(args.length!==3)throw new Error('invalid_arguments: patch MANIFEST VISUAL_PATCH NEW_MANIFEST');
    await assertOutput(required(0),required(2));

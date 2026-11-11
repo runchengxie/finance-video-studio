@@ -2,6 +2,7 @@ import {z} from 'zod';
 import path from 'node:path';
 import {productionProfileSchema} from './profile.js';
 import {numericClaimSchema,validateClaimLinks} from './evidence-ledger.js';
+import {validateCustomScene} from './custom-scenes/index.js';
 
 export const idSchema=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/);
 const text=(max:number)=>z.string().trim().min(1).max(max);
@@ -27,7 +28,8 @@ const sceneSchema=z.discriminatedUnion('template',[
  z.object({...sceneBase,template:z.literal('waterfall'),data:z.object({unit,start:point,steps:z.array(point).min(1).max(12),end:point}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('trend'),data:z.object({unit,series:z.array(z.object({id:idSchema,label:text(80),values:z.array(z.object({label:text(80),value:number}).strict()).min(2).max(100)}).strict()).min(1).max(4)}).strict()}).strict(),
  z.object({...sceneBase,template:z.literal('process'),data:z.object({items:z.array(z.object({id:idSchema,label:text(80),detail:text(240)}).strict()).min(2).max(6),links:z.array(z.object({fromId:idSchema,toId:idSchema,label:text(40)}).strict()).max(12).optional()}).strict()}).strict(),
- z.object({...sceneBase,template:z.literal('evidence'),data:z.object({id:idSchema,text:text(1000),sourceId:idSchema}).strict()}).strict()
+ z.object({...sceneBase,template:z.literal('evidence'),data:z.object({id:idSchema,text:text(1000),sourceId:idSchema}).strict()}).strict(),
+ z.object({...sceneBase,template:z.literal('custom'),data:z.object({moduleId:idSchema,input:z.record(z.string(),z.unknown()),targets:z.array(idSchema).min(1).max(50)}).strict()}).strict()
 ]);
 const cueSchema=z.object({id:idSchema,text:text(180),startFrame:frame,endFrame:frame.min(1)}).strict();
 const eventSchema=z.object({id:idSchema,sceneId:idSchema,cueId:idSchema,targetId:idSchema,action:z.enum(['reveal','highlight','compare','annotate']),offsetFrames:z.number().int().min(-108000).max(108000),durationFrames:z.number().int().min(1).max(300),precision:z.enum(['cue_start','manually_aligned','unresolved'])}).strict();
@@ -57,6 +59,7 @@ export function targetIds(scene:Scene):string[] {
   case 'comparison':case 'signed-comparison':case 'process':return scene.data.items.map(p=>p.id);
   case 'waterfall':return [scene.data.start,...scene.data.steps,scene.data.end].map(p=>p.id);
   case 'trend':return scene.data.series.map(p=>p.id);
+ case 'custom':return scene.data.targets;
  }
 }
 function unique(ids:string[],kind:string):void {if(new Set(ids).size!==ids.length)throw new Error(`duplicate_${kind}_id`);}
@@ -82,6 +85,7 @@ export function parseProject(value:unknown):ProductionProject {
   if(s.template==='comparison'&&s.data.difference?.cueId){const c=cues.get(s.data.difference.cueId);if(!c||c.startFrame<s.from||c.startFrame>=s.from+s.durationFrames)throw new Error('difference_cue_reference');}
   if(s.template==='process')for(const link of s.data.links??[]){if(link.fromId===link.toId||![link.fromId,link.toId].every(id=>targetIds(s).includes(id)))throw new Error('process_link_reference');}
   if(s.template==='process'&&s.data.links&&p.width!==1080)throw new Error('process_links_require_portrait');
+  if(s.template==='custom'){if(p.width!==1080)throw new Error('custom_scene_requires_portrait');validateCustomScene(s);}
   const presentation=s.presentation;if(!presentation)continue;
   if(s.template==='process'&&(presentation.processStyle||s.data.links)&&presentation.sidebar?.length)throw new Error('process_diagram_sidebar_density');
   if(presentation.illustration){if(p.width!==1080)throw new Error('illustration_requires_portrait');if(inputs.get(presentation.illustration.inputId)?.mediaType!=='image')throw new Error('unknown_illustration_image');if(s.template!=='process'||s.data.items.length>4)throw new Error('illustration_requires_short_process');}

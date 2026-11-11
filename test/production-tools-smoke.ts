@@ -26,6 +26,7 @@ assert.equal(cli(['bad-command']).status,2);
 const patch=(hashValue:string)=>({schemaVersion:1,projectId:project.id,baseSnapshotHash:hashValue,changes:[{sceneId:'cash',targetId:'operating',translateX:12,translateY:-8,scale:1.02}]});
 const patchFile=path.join(out,'visual-patch.json');await writeJson(patchFile,patch(hash(await snapshotProject(manifest))));
 const revised=path.join(out,'synthetic-revised.json');assert.equal(cli(['patch',manifest,patchFile,revised]).status,0);
+const lookOut=path.join(out,'look');assert.equal(cli(['look',manifest,lookOut]).status,0);assert.equal(JSON.parse(await readFile(path.join(lookOut,'look.json'),'utf8')).frames.length,3);
 assert.deepEqual((await readProject(revised)).visualAdjustments,[{sceneId:'cash',targetId:'operating',translateX:12,translateY:-8,scale:1.02}]);
 const stalePatch=path.join(out,'stale-patch.json');await writeJson(stalePatch,patch('0'.repeat(64)));
 assert.equal(cli(['patch',manifest,stalePatch,path.join(out,'synthetic-stale.json')]).status,2);

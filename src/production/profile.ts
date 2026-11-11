@@ -15,6 +15,7 @@ function targets(scene:Scene):string[]{
   case 'comparison':case 'signed-comparison':case 'process':return scene.data.items.map(x=>x.id);
   case 'trend':return scene.data.series.map(x=>x.id);
   case 'waterfall':return [scene.data.start,...scene.data.steps,scene.data.end].map(x=>x.id);
+  case 'custom':return scene.data.targets;
  }
 }
 export function productionProfileIssues(p:ProductionProject):ProfileIssue[]{
