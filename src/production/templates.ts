@@ -5,6 +5,7 @@ import {designTokens as t} from './design.js';
 import {labels} from './locales.js';
 import {portraitSceneHtml} from './portrait.js';
 import {applyVisualProfile} from './visual-profile.js';
+import {visualAdjustmentCss} from './visual-adjustment-css.js';
 export const escapeHtml=(value:unknown)=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const n=(x:number)=>new Intl.NumberFormat('en',{maximumFractionDigits:2}).format(x);
 function text(x:number,y:number,value:unknown,size=28,extra=''):string {return `<text data-fit x="${x}" y="${y}" font-size="${size}" ${extra}>${escapeHtml(value)}</text>`;}
@@ -51,7 +52,10 @@ function landscapeSceneHtml(project:ProductionProject,sceneId:string,frame:numbe
 }
 
 export function sceneHtml(project:ProductionProject,sceneId:string,frame:number,fontCss:string,variant:'improved'|'legacy-comparison'='improved',visualAssets:ReadonlyMap<string,string>=new Map()):string {
- return project.width===1080?portraitSceneHtml(project,sceneId,frame,fontCss,visualAssets):applyVisualProfile(landscapeSceneHtml(project,sceneId,frame,fontCss,variant,visualAssets),project,frame);
+ const html=project.width===1080?portraitSceneHtml(project,sceneId,frame,fontCss,visualAssets):applyVisualProfile(landscapeSceneHtml(project,sceneId,frame,fontCss,variant,visualAssets),project,frame);
+ const adjustments=visualAdjustmentCss(project,sceneId);
+ if(!adjustments)return html;
+ return html.replace('<html',`<html data-scene="${sceneId}"`).replace('</style>',`${adjustments}</style>`);
 }
 
 

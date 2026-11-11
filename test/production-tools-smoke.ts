@@ -7,6 +7,8 @@ import {exportTimeline} from '../src/production/subtitle-exports.js';
 import {mediaTool} from '../src/production/media.js';
 import {verifyMedia} from '../src/production/verify.js';
 import {doctor} from '../src/production/doctor.js';
+import {snapshotProject} from '../src/production/snapshot.js';
+import {hash} from '../src/review.js';
 
 const out=process.argv[2];if(!out||!path.isAbsolute(out))throw new Error('Supply a new absolute external directory');
 await initializeProject(out);
@@ -21,6 +23,12 @@ const report=await verifyMedia(video,expected);assert.equal(report.ok,true,JSON.
 const wrong=path.join(out,'wrong-expectations.json');await writeJson(wrong,{...expected,width:640});
 const cli=(args:string[],env=process.env)=>spawnSync(process.execPath,['--import','tsx','src/studio-cli.ts',...args],{encoding:'utf8',env,windowsHide:true});
 assert.equal(cli(['bad-command']).status,2);
+const patch=(hashValue:string)=>({schemaVersion:1,projectId:project.id,baseSnapshotHash:hashValue,changes:[{sceneId:'cash',targetId:'operating',translateX:12,translateY:-8,scale:1.02}]});
+const patchFile=path.join(out,'visual-patch.json');await writeJson(patchFile,patch(hash(await snapshotProject(manifest))));
+const revised=path.join(out,'synthetic-revised.json');assert.equal(cli(['patch',manifest,patchFile,revised]).status,0);
+assert.deepEqual((await readProject(revised)).visualAdjustments,[{sceneId:'cash',targetId:'operating',translateX:12,translateY:-8,scale:1.02}]);
+const stalePatch=path.join(out,'stale-patch.json');await writeJson(stalePatch,patch('0'.repeat(64)));
+assert.equal(cli(['patch',manifest,stalePatch,path.join(out,'synthetic-stale.json')]).status,2);
 assert.equal(cli(['doctor',manifest],{...process.env,FFMPEG_PATH:path.join(out,'missing')}).status,3);
 const negative=path.join(out,'negative-report.json');assert.equal(cli(['verify',video,wrong,negative]).status,4);
 const saved=await readFile(negative);assert.equal(cli(['verify',video,wrong,negative]).status,2);assert.deepEqual(await readFile(negative),saved);

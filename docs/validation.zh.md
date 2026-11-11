@@ -10,6 +10,10 @@ npm 直接依赖及文档依赖锁已更新到兼容的最新稳定版。TypeScr
 
 在 Node 24.22.2 与系统 FFmpeg 8.1.2 下，`npm run check`、全部 101 项测试、两种锁定 Chromium 的烟雾测试、固定合成审阅示例及中英文文档严格构建均通过。生产依赖审计未发现漏洞。生成的验证材料保存在 Git 仓库之外。
 
+## 视觉补丁编辑（2026-11-11）
+
+本机验证使用 Node 24.22.2、锁定的 Playwright Chromium、Noto Sans SC 和系统 FFmpeg 8.1.2。`npm run check` 通过，全部 113 项测试通过，包括新增的预览拖动/导出、逐帧绘制确定性、视觉缓存指纹和过期补丁用例。`npm run tools:smoke -- <外部目录>` 通过，覆盖新增的 `studio patch` 成功写入和过期哈希拒绝用例。固定合成审阅示例与锁定 Chromium 烟雾渲染也通过。本机未运行 MkDocs 构建。生成的验证材料保存在 Git 仓库之外。
+
 ## 第一版验证记录
 
 以下保留 2026-10-17 的本机验证结果，不表示之后每一版本都重新完成了这些检查。当时使用 Node 24.19.0、锁定的 Playwright Chromium 156.0.8078.4（revision 1248）、Noto Sans SC 5.2.8 和外部 FFmpeg 9.0.2。
